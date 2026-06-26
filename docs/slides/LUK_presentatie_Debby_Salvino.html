@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teamontwikkeling Tiny Houses – LUK 1-2-3 | Debby Salvino</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+  <style>
+    :root {
+      --r-background-color: #0f1923;
+      --r-main-color: #e8edf2;
+      --r-heading-color: #ffffff;
+      --r-link-color: #4fc3f7;
+      --r-selection-background-color: #1e3a5f;
+      --accent:  #4fc3f7;
+      --accent2: #81d4fa;
+      --accent3: #b3e5fc;
+      --card-bg: rgba(255,255,255,0.06);
+      --card-border: rgba(79,195,247,0.25);
+    }
+
+    .reveal { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 36px; }
+    .reveal h1 { font-size: 1.9em; color: var(--accent); margin-bottom: 0.2em; line-height: 1.15; }
+    .reveal h2 { font-size: 1.3em; color: var(--accent2); border-bottom: 2px solid var(--card-border); padding-bottom: 0.2em; margin-bottom: 0.6em; }
+    .reveal h3 { font-size: 1em; color: var(--accent3); margin-bottom: 0.4em; }
+    .reveal p  { font-size: 0.68em; line-height: 1.55; color: #cfd8e3; margin: 0.35em 0; }
+    .reveal li { font-size: 0.65em; line-height: 1.6; color: #cfd8e3; }
+
+    /* Slide layouts */
+    .slide-cover { text-align: center; }
+    .slide-cover .subtitle { font-size: 0.72em; color: var(--accent3); margin-top: 0.5em; }
+    .slide-cover .meta { font-size: 0.55em; color: #78909c; margin-top: 1.5em; line-height: 1.8; }
+    .slide-cover .luk-badge {
+      display: inline-block; background: var(--accent); color: #0f1923;
+      border-radius: 4px; font-size: 0.55em; padding: 0.2em 0.8em;
+      font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.6em;
+    }
+
+    /* Two-column grid */
+    .cols { display: grid; gap: 1.2em; }
+    .cols-2 { grid-template-columns: 1fr 1fr; }
+    .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    /* Card */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.8em 1em;
+    }
+    .card h3 { margin-top: 0; }
+    .card.accent { border-color: var(--accent); background: rgba(79,195,247,0.08); }
+    .card.warn   { border-color: #ffb74d; background: rgba(255,183,77,0.08); }
+    .card.green  { border-color: #81c784; background: rgba(129,199,132,0.08); }
+
+    /* Tag pill */
+    .tag {
+      display: inline-block; font-size: 0.5em; padding: 0.2em 0.6em;
+      border-radius: 20px; margin: 0.1em; font-weight: 600;
+    }
+    .tag-blue   { background: rgba(79,195,247,0.2);  color: #4fc3f7; border: 1px solid #4fc3f7; }
+    .tag-green  { background: rgba(129,199,132,0.2); color: #81c784; border: 1px solid #81c784; }
+    .tag-orange { background: rgba(255,183,77,0.2);  color: #ffb74d; border: 1px solid #ffb74d; }
+    .tag-purple { background: rgba(179,136,255,0.2); color: #b388ff; border: 1px solid #b388ff; }
+
+    /* Flow arrow */
+    .arrow-row { display: flex; align-items: center; justify-content: center; gap: 0.4em; flex-wrap: wrap; }
+    .arrow-step {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 8px; padding: 0.4em 0.7em; font-size: 0.58em; color: #cfd8e3; text-align: center;
+    }
+    .arrow-sep { color: var(--accent); font-size: 0.9em; }
+
+    /* Quote block */
+    .quote {
+      border-left: 3px solid var(--accent);
+      padding: 0.4em 0.8em; font-style: italic;
+      font-size: 0.62em; color: #b0bec5; margin: 0.5em 0;
+    }
+
+    /* Theory row */
+    .theory-item { display: flex; align-items: flex-start; gap: 0.5em; margin-bottom: 0.4em; }
+    .theory-label {
+      flex-shrink: 0; background: rgba(79,195,247,0.15);
+      border: 1px solid var(--card-border); border-radius: 6px;
+      padding: 0.15em 0.5em; font-size: 0.52em; color: var(--accent2);
+      font-weight: 700; white-space: nowrap;
+    }
+    .theory-text { font-size: 0.62em; color: #cfd8e3; line-height: 1.45; }
+
+    /* Tuckman bar */
+    .tuckman { display: flex; gap: 0.3em; margin: 0.6em 0; }
+    .tuckman-phase {
+      flex: 1; padding: 0.5em 0.3em; border-radius: 6px; text-align: center;
+      font-size: 0.5em; font-weight: 700; color: rgba(255,255,255,0.5);
+      border: 1px solid transparent;
+    }
+    .tuckman-phase.active {
+      color: #fff; border-color: var(--accent);
+      background: rgba(79,195,247,0.18);
+    }
+    .tuckman-phase.past { color: #78909c; background: rgba(255,255,255,0.04); }
+
+    /* Progress dots */
+    .progress-dots { text-align: center; margin-top: 0.8em; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin: 0 3px; background: #37474f; }
+    .dot.active { background: var(--accent); }
+
+    /* Sailboat visual */
+    .sailboat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8em; }
+    .sailboat-item { border-radius: 8px; padding: 0.6em 0.8em; font-size: 0.6em; }
+    .sb-wind   { background: rgba(129,199,132,0.12); border: 1px solid #81c784; }
+    .sb-anchor { background: rgba(255,152,0,0.12);   border: 1px solid #ffa726; }
+
+    /* Section divider */
+    .divider-luk {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .luk1 { background: linear-gradient(90deg, #1565c0, #42a5f5); }
+    .luk2 { background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+    .luk3 { background: linear-gradient(90deg, #6a1b9a, #ab47bc); }
+
+    /* Strength / develop */
+    .strength-list li::marker { color: #81c784; }
+    .develop-list li::marker  { color: #ffb74d; }
+
+    /* Override Reveal defaults */
+    .reveal .slides section { padding: 0.5em 2em; }
+    .reveal ul { margin-left: 1em; }
+    .reveal ul li { margin: 0.2em 0; }
+
+    /* Section intro slide */
+    .section-intro { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .section-intro .luk-number { font-size: 3.5em; font-weight: 900; opacity: 0.12; position: absolute; top: 0.1em; left: 50%; transform: translateX(-50%); }
+    .section-intro .luk-title  { font-size: 1.5em; color: var(--accent); position: relative; z-index: 1; }
+    .section-intro .luk-sub    { font-size: 0.7em; color: #90a4ae; margin-top: 0.3em; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ═══════════════════════ COVER ═══════════════════════ -->
+<section class="slide-cover" data-background-gradient="radial-gradient(ellipse at 30% 40%, #0d2137 0%, #0f1923 60%)">
+  <div style="margin-bottom:0.8em">
+    <span class="luk-badge">EvL D6 — Stimuleren van teamontwikkeling</span>
+  </div>
+  <h1>Teamontwikkeling<br/>rond de Tiny Houses</h1>
+  <p class="subtitle">Onderzoek · Interventie · Reflectie &nbsp;|&nbsp; LUK 1 – 2 – 3</p>
+  <p class="meta">
+    Debby Salvino &nbsp;·&nbsp; Team Wonen<br/>
+    Stichting Ophovenerhof &nbsp;·&nbsp; 2026
+  </p>
+  <div style="margin-top:1.5em; display:flex; justify-content:center; gap:0.6em;">
+    <span class="tag tag-blue">LUK 1 · Onderzoek</span>
+    <span class="tag tag-green">LUK 2 · Interventie</span>
+    <span class="tag tag-purple">LUK 3 · Reflectie</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════ OVERZICHT ═══════════════════════ -->
+<section>
+  <h2>Opbouw van de presentatie</h2>
+  <div class="arrow-row" style="margin:1.2em 0;">
+    <div class="arrow-step"><strong>LUK 1</strong><br/>Context &amp;<br/>onderzoek</div>
+    <div class="arrow-sep">→</div>
+    <div class="arrow-step"><strong>LUK 1</strong><br/>Analyse &amp;<br/>teamfase</div>
+    <div class="arrow-sep">→</div>
+    <div class="arrow-step"><strong>LUK 2</strong><br/>Ontwerp<br/>interventie</div>
+    <div class="arrow-sep">→</div>
+    <div class="arrow-step"><strong>LUK 2</strong><br/>Verloop<br/>sessie</div>
+    <div class="arrow-sep">→</div>
+    <div class="arrow-step"><strong>LUK 3</strong><br/>Reflectie<br/>leiderschap</div>
+    <div class="arrow-sep">→</div>
+    <div class="arrow-step"><strong>LUK 3</strong><br/>Groei &amp;<br/>doelen</div>
+  </div>
+  <div class="card" style="text-align:center; margin-top:1em;">
+    <p style="font-size:0.65em; color:#90a4ae;">
+      Rode draad: hoe vertaalt het team de visie van de Tiny Houses<br/>
+      naar de dagelijkse ambulante begeleiding?
+    </p>
+  </div>
+</section>
+
+<!-- ════════════ LUK 1 SECTION INTRO ════════════ -->
+<section class="section-intro" data-background-gradient="radial-gradient(ellipse at 20% 60%, #0d1e35 0%, #0f1923 70%)">
+  <div class="divider-luk luk1" style="position:relative; width:120px; height:4px; border-radius:2px; margin-bottom:0.6em;"></div>
+  <div class="luk-title">LUK 1 &nbsp;·&nbsp; Onderzoek</div>
+  <div class="luk-sub">Teamdynamiek in kaart brengen</div>
+</section>
+
+<!-- ═══════════════════════ CONTEXT ═══════════════════════ -->
+<section>
+  <h2>Context &amp; veranderrichting</h2>
+  <div class="cols cols-2">
+    <div class="card accent">
+      <h3>Het project</h3>
+      <p>Team Wonen begeleidde bewoners van de <strong>Tiny Houses</strong> bij Stichting Ophovenerhof. De kern: begeleiders verschuiven van <em>overnemen</em> naar <em>loslaten</em> — ondersteunen waar nodig, zodat bewoners groeien in zelfstandigheid.</p>
+    </div>
+    <div class="card">
+      <h3>Aanleiding onderzoek</h3>
+      <p>De teamleidster is tijdelijk afwezig. Samen met een collega vervul ik leidinggevende taken. Vraag: <em>hoe gaat het team met elkaar om, en wat staat de verandering in de weg?</em></p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1em;">
+    <h3>Onderzoeksaanpak</h3>
+    <div class="arrow-row">
+      <div class="arrow-step">Open, participatieve<br/>observatie<br/><span style="color:#78909c;">teamvergadering 12 mei</span></div>
+      <div class="arrow-sep">+</div>
+      <div class="arrow-step">Gesprekken<br/>met collega's</div>
+      <div class="arrow-sep">+</div>
+      <div class="arrow-step">Evaluatie<br/>Tiny Houses 2026</div>
+      <div class="arrow-sep">+</div>
+      <div class="arrow-step">Bevestiging<br/>bestuurster</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ OBSERVATIES ═══════════════════════ -->
+<section>
+  <h2>Observaties — boven- &amp; onderstroom</h2>
+  <div class="cols cols-2">
+    <div class="card green">
+      <h3>☀ Bovenstroom (zichtbaar)</h3>
+      <ul>
+        <li>Afspraken zijn gemaakt, taken verdeeld</li>
+        <li>Visie Tiny Houses bij iedereen bekend</li>
+        <li>Grote betrokkenheid en passie</li>
+        <li>Structurele agenda aanwezig</li>
+      </ul>
+    </div>
+    <div class="card warn">
+      <h3>🌊 Onderstroom (verborgen)</h3>
+      <ul>
+        <li>Onrust &amp; door elkaar praten aan de start</li>
+        <li>Paar collega's voeren structureel het woord</li>
+        <li>Gewenning: "zo doen we het hier"</li>
+        <li>Kritische vraag "klopt dit nog?" nauwelijks gesteld</li>
+      </ul>
+    </div>
+  </div>
+  <div class="quote" style="margin-top:0.8em;">
+    "De visie is goed bekend, maar wordt niet vertaald naar de dagelijkse, ambulante praktijk."
+  </div>
+</section>
+
+<!-- ═══════════════════════ TEAMFASE ═══════════════════════ -->
+<section>
+  <h2>Teamfase — Tuckman</h2>
+  <div class="tuckman">
+    <div class="tuckman-phase past">Forming</div>
+    <div class="tuckman-phase past">Storming</div>
+    <div class="tuckman-phase past" style="color:#78909c; background:rgba(255,183,77,0.06); border-color:#78909c;">Norming<br/><small>(vastgeroest)</small></div>
+    <div class="tuckman-phase active">Storming<br/><small>(nu)</small></div>
+    <div class="tuckman-phase" style="color:#81c784; background:rgba(129,199,132,0.06); border-color:#81c784;">Gezondere<br/>Norming</div>
+    <div class="tuckman-phase past">Performing</div>
+  </div>
+  <div class="cols cols-2" style="margin-top:0.6em;">
+    <div class="card warn">
+      <h3>Aanleiding storming</h3>
+      <ul>
+        <li>Coördinator wonen weggevallen</li>
+        <li>Kritischere ouders &amp; mails</li>
+        <li>Sturende, directieve leiderschapsstijl (S1)</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Richting gezondere norming</h3>
+      <ul>
+        <li>Steun &amp; bevestiging bestuurster + mij</li>
+        <li>Coachende, steunende stijl (S3)</li>
+        <li>Introverte collega's durven naar voren</li>
+        <li>Meer initiatief en zelfvertrouwen</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ THEORETISCH KADER ═══════════════════════ -->
+<section>
+  <h2>Analyse — theoretisch kader</h2>
+  <div class="theory-item">
+    <span class="theory-label">Vroemen</span>
+    <span class="theory-text">Boven- &amp; onderstroom: de verandering loopt niet vast op de visie (bovenstroom), maar op gewenning en ongeschreven regels (onderstroom).</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Senge</span>
+    <span class="theory-text">Rommelige communicatie is een symptoom. Structurele oorzaak: ingesleten patroon waarbij visie niet wordt vertaald naar dagelijkse praktijk. Ik maak zelf deel uit van dit systeem.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Mario Kieft</span>
+    <span class="theory-text">Systeemdenken: "Zo doen we het hier" is een ongeschreven norm die nieuw gedrag tegenhoudt. Het systeem creëert het gedrag — geen schuld, maar patroon.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Hersey &amp; Blanchard</span>
+    <span class="theory-text">Wisseling van S1 (directief) naar S3 (steunend) laat zien dat het team groeit zodra het bevestiging en ruimte krijgt.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Tuckman</span>
+    <span class="theory-text">Van vastgeroeste norming via storming naar gezondere norming. Onzekerheid en weerstand horen bij die transitie.</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CONCLUSIE LUK 1 ═══════════════════════ -->
+<section>
+  <h2>Conclusie LUK 1</h2>
+  <div class="card accent" style="margin-bottom:0.8em;">
+    <p><strong>Structurele oorzaak:</strong> de visie is bekend, maar wordt niet vertaald naar de dagelijkse ambulante praktijk. Gewenning, gemak, ingesleten gewoontes en verwachtingen van ouders houden het oude patroon in stand.</p>
+  </div>
+  <div class="card green">
+    <p><strong>Positief signaal:</strong> zodra het team steun en bevestiging krijgt, groeit het. Dit vraagt om een interventie die het team mét elkaar laat kijken naar de visie en naar de eigen rol daarin.</p>
+  </div>
+  <div class="card" style="margin-top:0.8em; text-align:center;">
+    <p style="font-size:0.6em; color:#90a4ae;">→ Uitgewerkt in LUK 2: de teamretrospective</p>
+  </div>
+</section>
+
+<!-- ════════════ LUK 2 SECTION INTRO ════════════ -->
+<section class="section-intro" data-background-gradient="radial-gradient(ellipse at 80% 40%, #0d1f0e 0%, #0f1923 70%)">
+  <div class="divider-luk luk2" style="position:relative; width:120px; height:4px; border-radius:2px; margin-bottom:0.6em;"></div>
+  <div class="luk-title" style="color:#66bb6a;">LUK 2 &nbsp;·&nbsp; Interventie</div>
+  <div class="luk-sub">Teamretrospective — de zeilboot</div>
+</section>
+
+<!-- ═══════════════════════ DOEL INTERVENTIE ═══════════════════════ -->
+<section>
+  <h2>Doel van de interventie</h2>
+  <div class="cols cols-2">
+    <div class="card green">
+      <h3>Doel 1</h3>
+      <p>Het team laten terughalen <strong>waar ze trots op zijn</strong> in het project Tiny Houses.</p>
+    </div>
+    <div class="card accent">
+      <h3>Doel 2</h3>
+      <p>Van daaruit samen kijken <strong>wat helpt</strong> en <strong>wat in de weg zit</strong> om de bedoeling vast te houden.</p>
+    </div>
+  </div>
+  <div class="quote" style="margin-top:0.8em;">
+    "Niet beginnen bij wat er niet goed gaat, maar bij wat er al wél werkt."
+  </div>
+  <div class="card" style="margin-top:0.8em;">
+    <p>Bewuste keuze: aansluiten bij de <strong>structurele oorzaak</strong> uit LUK 1 — het team opnieuw aanzetten tot eigen denken en eigenaarschap, in plaats van mij de antwoorden te laten geven.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════ ZEILBOOT WERKVORM ═══════════════════════ -->
+<section>
+  <h2>De werkvorm — zeilboot retrospective</h2>
+  <div class="sailboat-grid">
+    <div class="sailboat-item sb-wind">
+      <h3 style="color:#81c784; font-size:0.75em;">⛵ Trots / meewind</h3>
+      <p>"Waar ben je trots op in het project de Tiny Houses?"</p>
+    </div>
+    <div class="sailboat-item" style="background:rgba(79,195,247,0.08); border:1px solid #4fc3f7;">
+      <h3 style="color:#4fc3f7; font-size:0.75em;">🏝 Koers (het eiland)</h3>
+      <p>Wat helpt om de visie vast te houden?</p>
+    </div>
+    <div class="sailboat-item sb-anchor">
+      <h3 style="color:#ffa726; font-size:0.75em;">⚓ Anker / tegenwind</h3>
+      <p>Wat houdt het team tegen?</p>
+    </div>
+    <div class="sailboat-item" style="background:rgba(179,136,255,0.08); border:1px solid #b388ff;">
+      <h3 style="color:#b388ff; font-size:0.75em;">📋 Post-its werkwijze</h3>
+      <p>Eerst individueel schrijven → zelf opplakken → eigen toelichting</p>
+    </div>
+  </div>
+  <div class="cols cols-3" style="margin-top:0.7em;">
+    <div class="card" style="font-size:0.55em; text-align:center; color:#cfd8e3;"><strong>Iedereen doet mee</strong><br/>Stillere collega's staan al voor snelle praters het woord nemen</div>
+    <div class="card" style="font-size:0.55em; text-align:center; color:#cfd8e3;"><strong>Eigenaarschap</strong><br/>Denkwerk blijft bij het team, niet bij mij als begeleider</div>
+    <div class="card" style="font-size:0.55em; text-align:center; color:#cfd8e3;"><strong>Houvast</strong><br/>Draaiboek + duidelijke tijden, zonder inhoud te sturen</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ VERLOOP SESSIE ═══════════════════════ -->
+<section>
+  <h2>Verloop — 4 juni</h2>
+  <p style="margin-bottom:0.6em;">Aanwezig: Bram, Lindsay, Iris, Boukje, Angelique &amp; coördinator dagbesteding</p>
+  <div class="cols cols-2">
+    <div>
+      <h3>Wat goed liep</h3>
+      <ul>
+        <li>Draaiboek aangehouden</li>
+        <li>Stillere collega's plakten op en lichtten toe</li>
+        <li>Sfeer veilig en betrokken</li>
+        <li>Iedereen nam eigenaarschap</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Bijsturing op het moment</h3>
+      <ul>
+        <li>Collega te laat → kort herbriefed, actief betrokken</li>
+        <li>Afdwalen → bewust geparkeerd voor later</li>
+        <li>Vraag over tijd → rustig bevestigd, structuur gehouden</li>
+      </ul>
+    </div>
+  </div>
+  <div class="quote" style="margin-top:0.8em;">
+    "Doordat ik vooraf had nagedacht over opzet en tijden, kon ik in deze momenten rustig blijven en de structuur vasthouden, zonder de sfeer kwijt te raken."
+  </div>
+</section>
+
+<!-- ═══════════════════════ THEORIE LUK2 ═══════════════════════ -->
+<section>
+  <h2>Theoretische onderbouwing — LUK 2</h2>
+  <div class="theory-item">
+    <span class="theory-label">Vroemen</span>
+    <span class="theory-text">Helpen zonder bemoeizucht: ik faciliteerde wel, maar vulde niet in. Het denkwerk bleef bij het team.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Remmerswaal</span>
+    <span class="theory-text">Voordeur (inhoud) én zijdeur (wat onder de oppervlakte speelt): post-its voor de voordeur, goed luisteren bij toelichten voor de zijdeur.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Edmondson</span>
+    <span class="theory-text">Psychologische veiligheid: eerst apart schrijven en zelf opplakken verlaagt de drempel — ook stillere collega's deden mee.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Deep Democracy</span>
+    <span class="theory-text">Ruimte voor alle stemmen: afdwalen niet wegsturen maar parkeren, zodat het later alsnog ruimte krijgt. Wijsheid kan in het afwijkende geluid zitten.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Cardiff</span>
+    <span class="theory-text">Persoonsgericht leiderschap — aanwezig zijn: rustig blijven en sturen vanuit verbinding, ook als het even rommelig werd.</span>
+  </div>
+</section>
+
+<!-- ════════════ LUK 3 SECTION INTRO ════════════ -->
+<section class="section-intro" data-background-gradient="radial-gradient(ellipse at 60% 20%, #1a0a2e 0%, #0f1923 70%)">
+  <div class="divider-luk luk3" style="position:relative; width:120px; height:4px; border-radius:2px; margin-bottom:0.6em;"></div>
+  <div class="luk-title" style="color:#ab47bc;">LUK 3 &nbsp;·&nbsp; Reflectie</div>
+  <div class="luk-sub">Mijn rol als leider</div>
+</section>
+
+<!-- ═══════════════════════ BEWUSTE KEUZES ═══════════════════════ -->
+<section>
+  <h2>Bewuste keuzes als facilitator</h2>
+  <div class="cols cols-2">
+    <div class="card" style="border-color:#ab47bc; background:rgba(171,71,188,0.07);">
+      <h3>Niet participeren, wél faciliteren</h3>
+      <p>Ik gaf ruimte aan de mening van iedereen zonder sturing. In mijn tijdelijk leidende rol wilde ik eigenaarschap en initiatief in het team vergroten — niet overnemen.</p>
+    </div>
+    <div class="card green">
+      <h3>Anonimiteit als sleutel</h3>
+      <p>Eerste vraag: iedereen plakte zelf op (vertrouwen bouwen). Volgende vragen: ik plakte de post-its zelf op zodat niet zichtbaar was van wie welke kwam — dit gaf veiligheid en minder drempel.</p>
+    </div>
+  </div>
+  <div class="card accent" style="margin-top:0.8em;">
+    <h3>Structuur als bewuste keuze</h3>
+    <p>Structuur is niet mijn natuurlijke stijl (DISC: geel-rood-groen, weinig blauw). Toch koos ik er bewust voor, omdat de korte tijd en werkvorm hierom vroegen. Ik bouwde het houvast vooraf in het draaiboek.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════ KRITISCHE MOMENTEN ═══════════════════════ -->
+<section>
+  <h2>Kritische momenten &amp; mijn regie</h2>
+  <div class="cols cols-3">
+    <div class="card warn">
+      <h3>⏰ Te late collega</h3>
+      <p>Kort opnieuw uitleg gegeven, actief meegenomen — geen onnodige ruis, focus terug.</p>
+    </div>
+    <div class="card">
+      <h3>❓ Vraag over tijd</h3>
+      <p>Niet als lastig gedrag gezien, maar geplaatst in context: ze neemt haar taak serieus. Rustig bevestigd.</p>
+    </div>
+    <div class="card accent">
+      <h3>💬 Afdwalen</h3>
+      <p>"Kun je dit parkeren zodat we er later op terugkomen?" — vooraf bedacht omdat ik dit patroon ken. Ze voelt zich gehoord, geen frustraties.</p>
+    </div>
+  </div>
+  <div class="quote" style="margin-top:0.8em;">
+    "Ik had ze van tevoren ingeschat, dus ze brachten me niet van mijn stuk."
+  </div>
+</section>
+
+<!-- ═══════════════════════ MIJN KRACHT ═══════════════════════ -->
+<section>
+  <h2>Mijn kracht</h2>
+  <div class="cols cols-2">
+    <ul class="strength-list">
+      <li>Focus bewaren &amp; team terugbrengen bij de vraag</li>
+      <li>Sturen op proces (tijd &amp; opbouw), inhoud bij team laten</li>
+      <li>Afstemmen op wat ik van mensen weet — persoonsgericht bijsturen</li>
+    </ul>
+    <ul class="strength-list">
+      <li>Oprechte nieuwsgierigheid naar de inbreng van collega's</li>
+      <li>Rust bij onderbrekingen door goede voorbereiding</li>
+      <li>Structuur inzetten terwijl dat niet mijn gewoonte is — bewuste aanpassing</li>
+    </ul>
+  </div>
+  <div class="card green" style="margin-top:1em;">
+    <p><strong>Groei:</strong> ik stem mijn stijl af op wat de situatie en het team nodig hebben — niet op mijn comfortzone.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════ THEORIE LUK3 ═══════════════════════ -->
+<section>
+  <h2>Theoretische koppeling — LUK 3</h2>
+  <div class="theory-item">
+    <span class="theory-label">Cardiff</span>
+    <span class="theory-text">Presentie — als leider er echt zijn voor het team. Ik bleef rustig en aanwezig, ook toen het even rommelig werd.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Management Impact</span>
+    <span class="theory-text">Ontschuldigen — gedrag krijgt betekenis als je kijkt waar het vandaan komt. Ik keek niet met een oordeel naar mijn collega, maar plaatste haar gedrag in context.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Edmondson</span>
+    <span class="theory-text">Psychologische veiligheid: mensen durven zichzelf zijn — fouten delen, vragen stellen, respect voelen zonder angst voor gevolgen.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Deep Democracy</span>
+    <span class="theory-text">Spanning tussen focus houden en ruimte geven aan tegengeluid. Soms zit juist de wijsheid in de afwijkende mening.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Argyris</span>
+    <span class="theory-text">Double-loop leren: ik kijk niet alleen naar mijn gedrag, maar ook naar de aanname eronder — mijn neiging om snel in te vullen. Bewust gefaciliteerd in plaats van ingevuld.</span>
+  </div>
+  <div class="theory-item">
+    <span class="theory-label">Vroemen</span>
+    <span class="theory-text">Reflectie als vaste bouwsteen van teamcoaching, naast diagnose en interventie — geen los stapje achteraf.</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FEEDBACK ═══════════════════════ -->
+<section>
+  <h2>Feedback &amp; leren</h2>
+  <div class="cols cols-2">
+    <div class="card accent">
+      <h3>Coördinator dagbesteding</h3>
+      <ul>
+        <li>Voorbereiding sterk — theorie duidelijk uitgewerkt</li>
+        <li>Genoeg ruimte gelaten bij het invullen</li>
+        <li>Actieve rol voor stillere collega's</li>
+        <li>"Leiderschap sterk — zou het zo aanpakken"</li>
+        <li>Teamontwikkeling is in gang gezet</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <h3>Team (feedbackronde)</h3>
+      <ul>
+        <li>"Tijd om na te denken en dieper in te gaan"</li>
+        <li>"Ik kreeg er zin van om aan de slag te gaan"</li>
+        <li>Iedereen open om het opnieuw zo te doen</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card warn" style="margin-top:0.8em;">
+    <p><strong>Nieuw inzicht:</strong> ik zag mijn structuur als iets dat niet bij mij past — voor het team was het juist verhelderend en veilig. Mijn bewuste keuze had precies het effect dat ik hoopte.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════ ONTWIKKELPUNT ═══════════════════════ -->
+<section>
+  <h2>Mijn ontwikkelpunt</h2>
+  <div class="card warn" style="margin-bottom:0.7em;">
+    <h3>Wanneer is ruis een signaal?</h3>
+    <p>Ik ben goed in rust en focus houden. Tegelijk wil ik beter leren aanvoelen wanneer afdwalen of ruis een signaal uit de onderstroom is (Deep Democracy) — en wanneer het echt afleidt van het doel.</p>
+  </div>
+  <div class="cols cols-2">
+    <div class="card">
+      <h3>Doel 1</h3>
+      <p>Beter herkennen wanneer ruis wijsheid bevat.</p>
+      <p><em>Actie:</em> eerste één open vraag stellen ("wie herkent dit?") voordat ik de focus terugbreng.</p>
+    </div>
+    <div class="card">
+      <h3>Doel 2</h3>
+      <p>Bewust structureren en faciliteren vaker inzetten.</p>
+      <p><em>Actie:</em> vervolgsessie plannen met coördinator of bestuurster en samen evalueren.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CONCLUSIE TOTAAL ═══════════════════════ -->
+<section data-background-gradient="radial-gradient(ellipse at 50% 50%, #0d1e35 0%, #0f1923 70%)">
+  <h2>Conclusie — rode draad</h2>
+  <div class="arrow-row" style="margin:0.8em 0;">
+    <div class="arrow-step" style="background:rgba(79,195,247,0.1); border-color:#4fc3f7;">
+      <strong style="color:#4fc3f7;">LUK 1</strong><br/>
+      Visie bekend,<br/>praktijk loopt achter
+    </div>
+    <div class="arrow-sep">→</div>
+    <div class="arrow-step" style="background:rgba(129,199,132,0.1); border-color:#81c784;">
+      <strong style="color:#81c784;">LUK 2</strong><br/>
+      Team weer<br/>eigenaar gemaakt
+    </div>
+    <div class="arrow-sep">→</div>
+    <div class="arrow-step" style="background:rgba(171,71,188,0.1); border-color:#ab47bc;">
+      <strong style="color:#ab47bc;">LUK 3</strong><br/>
+      Reflectie op<br/>mijn leiderschap
+    </div>
+  </div>
+  <div class="cols cols-2" style="margin-top:0.6em;">
+    <div class="card green">
+      <p>Het team beweegt van vastgeroeste norming via storming naar een <strong>gezondere norming</strong> met meer eigenaarschap en zichtbare talenten.</p>
+    </div>
+    <div class="card accent">
+      <p>Mijn groei: <strong>dubbele lus</strong> — niet alleen mijn gedrag bijsturen, maar ook de aanname eronder. Faciliteren in plaats van invullen.</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:0.8em; text-align:center;">
+    <p style="font-size:0.6em; color:#90a4ae;">Debby Salvino &nbsp;·&nbsp; Team Wonen &nbsp;·&nbsp; Stichting Ophovenerhof &nbsp;·&nbsp; 2026</p>
+  </div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    backgroundTransition: 'fade',
+    controls: true,
+    progress: true,
+    slideNumber: 'c/t',
+    center: false,
+    width: 1280,
+    height: 720,
+    margin: 0.04,
+  });
+</script>
+</body>
+</html>
