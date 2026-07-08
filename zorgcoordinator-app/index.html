@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zorgplanner — Jaarplanning</title>
+<title>Zorgplanner</title>
 <style>
   :root {
     --blauw: #2563eb;
@@ -213,11 +213,8 @@
   }
   .instel-blok { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--grijs-rand); }
   .instel-blok h3 { font-size: 14px; margin-bottom: 8px; }
-  .placeholder-tab {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--grijs-tekst);
-  }
+  .locatie-overzicht td, .locatie-overzicht th { text-align: center; }
+  .locatie-overzicht td:first-child, .locatie-overzicht th:first-child { text-align: left; }
   footer {
     text-align: center;
     color: var(--grijs-tekst);
@@ -562,13 +559,14 @@
   }
   function taakTypeVan(id) { return state.taakTypes.find((t) => t.id === id); }
 
-  function statusVan(taak) {
-    const dagen = dagenTot(taak.volgendeDatum);
+  function urgentieVanDatum(iso) {
+    const dagen = dagenTot(iso);
     if (dagen < 0) return "verlopen";
     if (dagen <= 7) return "deze-week";
     if (dagen <= 30) return "deze-maand";
     return "later";
   }
+  function statusVan(taak) { return urgentieVanDatum(taak.volgendeDatum); }
   const statusLabel = {
     verlopen: "Verlopen",
     "deze-week": "Deze week",
@@ -801,12 +799,7 @@
     return p ? p.naam : "(onbekend)";
   }
   function actieUrgentie(actie) {
-    if (actie.status === "afgerond") return null;
-    const dagen = dagenTot(actie.deadline);
-    if (dagen < 0) return "verlopen";
-    if (dagen <= 7) return "deze-week";
-    if (dagen <= 30) return "deze-maand";
-    return "later";
+    return actie.status === "afgerond" ? null : urgentieVanDatum(actie.deadline);
   }
 
   function voegActieToe(veld) {
@@ -856,9 +849,13 @@
     teamGekozenMedewerker = null;
     render();
   }
+  function gaNaarMedewerkerProfiel(id) {
+    huidigTab = "team";
+    kiesMedewerker(id);
+  }
 
   /* ---------- Weergave ---------- */
-  let huidigTab = "jaarplanning";
+  let huidigTab = "dashboard";
   let filterLocatie = "alle";
   let filterDoelgroep = "alle";
   let filterStatus = "alle";
@@ -874,12 +871,14 @@
   let actieFilterStatus = "actief";
   let toonNieuweActie = false;
 
+  let dashboardFilterLocatie = "alle";
+
   function renderNav() {
     const tabs = [
+      { id: "dashboard", label: "Dashboard", actief: true },
       { id: "jaarplanning", label: "Jaarplanning", actief: true },
       { id: "team", label: "Team", actief: true },
       { id: "actielijst", label: "Actielijst", actief: true },
-      { id: "dashboard", label: "Dashboard", actief: false },
     ];
     const nav = document.getElementById("nav");
     nav.innerHTML = tabs.map((t) => {
@@ -889,6 +888,138 @@
     nav.querySelectorAll("button:not([disabled])").forEach((b) => {
       b.addEventListener("click", () => { huidigTab = b.dataset.tab; render(); });
     });
+  }
+
+  const bronLabel = { jaarplanning: "Jaarplanning", actielijst: "Actielijst", ontwikkeldoel: "Ontwikkeldoel" };
+
+  function verzamelAandachtspunten() {
+    const punten = [];
+
+    state.taken.forEach((t) => {
+      const urgentie = statusVan(t);
+      if (urgentie !== "verlopen" && urgentie !== "deze-week") return;
+      const tt = taakTypeVan(t.taakTypeId);
+      punten.push({
+        bron: "jaarplanning", id: t.id, titel: tt ? tt.naam : "(verwijderd)",
+        persoonNaam: persoonNaam(t), persoonType: t.persoonType, persoonId: t.persoonId,
+        locatieId: t.locatieId, datum: t.volgendeDatum, urgentie,
+      });
+    });
+
+    state.acties.forEach((a) => {
+      const urgentie = actieUrgentie(a);
+      if (urgentie !== "verlopen" && urgentie !== "deze-week") return;
+      punten.push({
+        bron: "actielijst", id: a.id, titel: a.titel,
+        persoonNaam: actiePersoonNaam(a), persoonType: a.persoonType, persoonId: a.persoonId,
+        locatieId: a.locatieId, datum: a.deadline, urgentie,
+      });
+    });
+
+    state.ontwikkeldoelen.forEach((d) => {
+      if (d.status !== "open") return;
+      const urgentie = urgentieVanDatum(d.streefdatum);
+      if (urgentie !== "verlopen" && urgentie !== "deze-week") return;
+      const medewerker = state.medewerkers.find((m) => m.id === d.medewerkerId);
+      punten.push({
+        bron: "ontwikkeldoel", id: d.id, titel: d.titel,
+        persoonNaam: medewerker ? medewerker.naam : "(onbekend)", persoonType: "medewerker", persoonId: d.medewerkerId,
+        locatieId: medewerker ? medewerker.locatieId : null, datum: d.streefdatum, urgentie,
+      });
+    });
+
+    punten.sort((a, b) => a.datum.localeCompare(b.datum));
+    return punten;
+  }
+
+  function renderDashboard() {
+    const alleAandachtspunten = verzamelAandachtspunten();
+    const zichtbaar = dashboardFilterLocatie === "alle" ? alleAandachtspunten : alleAandachtspunten.filter((p) => p.locatieId === dashboardFilterLocatie);
+
+    const aantalVerlopen = alleAandachtspunten.filter((p) => p.urgentie === "verlopen").length;
+    const aantalDezeWeek = alleAandachtspunten.filter((p) => p.urgentie === "deze-week").length;
+    const aantalActiesBezig = state.acties.filter((a) => a.status === "bezig").length;
+    const totaalOpenstaand =
+      state.taken.length +
+      state.acties.filter((a) => a.status !== "afgerond").length +
+      state.ontwikkeldoelen.filter((d) => d.status === "open").length;
+
+    const locatieOpties = state.locaties.map((l) => `<option value="${l.id}" ${dashboardFilterLocatie === l.id ? "selected" : ""}>${l.naam}</option>`).join("");
+
+    const rijen = zichtbaar.map((p) => {
+      let actieKnop = "";
+      if (p.bron === "jaarplanning") actieKnop = `<button class="actie" data-dash-afronden-taak="${p.id}">Markeer als afgerond</button>`;
+      else if (p.bron === "actielijst") actieKnop = `<button class="actie" data-dash-afronden-actie="${p.id}">Markeer als afgerond</button>`;
+      else actieKnop = `<button class="subtiel" data-dash-naar-medewerker="${p.persoonId}">Bekijk profiel</button>`;
+
+      return `
+        <tr>
+          <td>${bronLabel[p.bron]}</td>
+          <td>${p.titel}</td>
+          <td>${p.persoonNaam}</td>
+          <td>${p.locatieId ? locatieNaam(p.locatieId) : "—"}</td>
+          <td>${naarNL(p.datum)}</td>
+          <td><span class="badge ${p.urgentie}">${statusLabel[p.urgentie]}</span></td>
+          <td>${actieKnop}</td>
+        </tr>`;
+    }).join("");
+
+    const locatieRijen = state.locaties.map((l) => {
+      const bewonersCount = state.bewoners.filter((b) => b.locatieId === l.id).length;
+      const medewerkersCount = state.medewerkers.filter((m) => m.locatieId === l.id).length;
+      const jpVerlopen = state.taken.filter((t) => t.locatieId === l.id && statusVan(t) === "verlopen").length;
+      const jpDezeWeek = state.taken.filter((t) => t.locatieId === l.id && statusVan(t) === "deze-week").length;
+      const acVerlopen = state.acties.filter((a) => a.locatieId === l.id && actieUrgentie(a) === "verlopen").length;
+      const acDezeWeek = state.acties.filter((a) => a.locatieId === l.id && actieUrgentie(a) === "deze-week").length;
+      return `
+        <tr>
+          <td>${l.naam}</td>
+          <td>${bewonersCount}</td>
+          <td>${medewerkersCount}</td>
+          <td>${jpVerlopen}</td>
+          <td>${jpDezeWeek}</td>
+          <td>${acVerlopen}</td>
+          <td>${acDezeWeek}</td>
+        </tr>`;
+    }).join("");
+
+    return `
+      <div class="melding">
+        Welkom terug. Dit <strong>dashboard</strong> verzamelt alles wat deze week aandacht nodig heeft uit de
+        jaarplanning, de actielijst en de ontwikkeldoelen van je team — zodat je niet apart door elk tabblad hoeft.
+      </div>
+
+      <div class="samenvatting">
+        <div class="tegel rood"><span class="getal">${aantalVerlopen}</span><span class="label">Verlopen</span></div>
+        <div class="tegel oranje"><span class="getal">${aantalDezeWeek}</span><span class="label">Deze week</span></div>
+        <div class="tegel geel"><span class="getal">${aantalActiesBezig}</span><span class="label">Acties in uitvoering</span></div>
+        <div class="tegel grijs"><span class="getal">${totaalOpenstaand}</span><span class="label">Totaal openstaand</span></div>
+      </div>
+
+      <div class="kaart">
+        <h2>Wat heeft deze week aandacht nodig?</h2>
+        <div class="filters">
+          <label>Locatie
+            <select id="dash-f-locatie">
+              <option value="alle" ${dashboardFilterLocatie === "alle" ? "selected" : ""}>Alle locaties</option>
+              ${locatieOpties}
+            </select>
+          </label>
+        </div>
+        <table>
+          <thead><tr><th>Onderdeel</th><th>Wat</th><th>Wie</th><th>Locatie</th><th>Datum</th><th>Urgentie</th><th>Actie</th></tr></thead>
+          <tbody>${rijen || `<tr><td colspan="7" style="text-align:center;color:var(--grijs-tekst);padding:24px;">Niets verlopen of deze week — goed bezig!</td></tr>`}</tbody>
+        </table>
+      </div>
+
+      <div class="kaart">
+        <h2>Overzicht per locatie</h2>
+        <table class="locatie-overzicht">
+          <thead><tr><th>Locatie</th><th>Bewoners</th><th>Medewerkers</th><th>Jaarplanning verlopen</th><th>Jaarplanning deze week</th><th>Acties verlopen</th><th>Acties deze week</th></tr></thead>
+          <tbody>${locatieRijen}</tbody>
+        </table>
+      </div>
+    `;
   }
 
   function renderJaarplanning() {
@@ -926,7 +1057,7 @@
         Dit is de <strong>jaarplanning</strong>. Terugkerende taken (dossierchecks, evaluaties, ontwikkel- en
         functioneringsgesprekken) worden hier automatisch opnieuw ingepland zodra je ze afrondt. Bekijk het tabblad
         <strong>Team</strong> voor ontwikkeldoelen, observaties en gespreksverslagen per medewerker, en
-        <strong>Actielijst</strong> voor eenmalige taken. Dashboard volgt in een latere stap.
+        <strong>Actielijst</strong> voor eenmalige taken, en <strong>Dashboard</strong> voor het weekoverzicht.
       </div>
 
       <div class="samenvatting">
@@ -1047,10 +1178,6 @@
         </details>
       </div>
     `;
-  }
-
-  function renderPlaceholder(naam) {
-    return `<div class="placeholder-tab"><h2>${naam}</h2><p>Dit onderdeel wordt in een volgende stap gebouwd, voortbouwend op dezelfde bewoners-, medewerkers- en locatiegegevens als de jaarplanning.</p></div>`;
   }
 
   function renderActielijst() {
@@ -1402,7 +1529,8 @@
       main.innerHTML = renderActielijst();
       koppelActielijstEvents();
     } else {
-      main.innerHTML = renderPlaceholder("Dashboard");
+      main.innerHTML = renderDashboard();
+      koppelDashboardEvents();
     }
   }
 
@@ -1523,6 +1651,15 @@
       if (bewonerWrap) bewonerWrap.style.display = e.target.value === "bewoner" ? "block" : "none";
       if (medewerkerWrap) medewerkerWrap.style.display = e.target.value === "medewerker" ? "block" : "none";
     });
+  }
+
+  function koppelDashboardEvents() {
+    const bij = (id, event, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(event, fn); };
+
+    bij("dash-f-locatie", "change", (e) => { dashboardFilterLocatie = e.target.value; render(); });
+    document.querySelectorAll("[data-dash-afronden-taak]").forEach((b) => b.addEventListener("click", () => markeerAfgerond(b.dataset.dashAfrondenTaak)));
+    document.querySelectorAll("[data-dash-afronden-actie]").forEach((b) => b.addEventListener("click", () => wijzigActie(b.dataset.dashAfrondenActie, "status", "afgerond")));
+    document.querySelectorAll("[data-dash-naar-medewerker]").forEach((b) => b.addEventListener("click", () => gaNaarMedewerkerProfiel(b.dataset.dashNaarMedewerker)));
   }
 
   render();

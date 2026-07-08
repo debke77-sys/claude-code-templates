@@ -3,7 +3,7 @@
 Eenvoudige web-app voor een coördinator in een kleinschalige zorginstelling. Vervangt losse
 Excel-bestanden voor teamoverzicht, jaarplanning, actielijst en een startdashboard.
 
-**Status:** drie onderdelen klaar — **Jaarplanning**, **Team** en **Actielijst**. Dashboard volgt later.
+**Status:** alle vier onderdelen klaar — **Dashboard**, **Jaarplanning**, **Team** en **Actielijst**.
 
 ## Hoe open ik de app?
 
@@ -39,6 +39,21 @@ Standaard terugkerende taken in de jaarplanning:
 
 Je kunt taaktypes, frequenties, locaties, bewoners en medewerkers zelf aanpassen via
 **Instellingen** onderaan het scherm.
+
+## Hoe werkt het dashboard?
+
+Het dashboard is het **startscherm** — dit zie je als eerste wanneer je de app opent.
+
+- Bovenaan vier tegels: aantal verlopen items, aantal items deze week, aantal acties die
+  in uitvoering zijn, en het totaal aantal openstaande items (over alle onderdelen heen).
+- **"Wat heeft deze week aandacht nodig?"** verzamelt alles wat verlopen is of deze week
+  gepland staat uit de jaarplanning, de actielijst én de open ontwikkeldoelen van je team,
+  op volgorde van datum. Je kunt taken en acties direct vanaf het dashboard afronden, of
+  doorklikken naar het profiel van een medewerker bij een ontwikkeldoel.
+- Filter dit overzicht op locatie.
+- **"Overzicht per locatie"** toont per locatie het aantal bewoners en medewerkers, en hoeveel
+  jaarplanning-taken en acties er verlopen of deze week gepland staan — een snel totaalbeeld
+  zonder per onderdeel te hoeven filteren.
 
 ## Hoe werkt de jaarplanning?
 
@@ -82,9 +97,8 @@ Je kunt taaktypes, frequenties, locaties, bewoners en medewerkers zelf aanpassen
   "Alle statussen" om ook afgeronde acties terug te zien.
 - Nieuwe acties voeg je toe via **+ Nieuwe actie**; verwijderen kan per actie.
 
-## Volgende stappen
+## Alle vier onderdelen zijn nu klaar
 
-Zodra dit onderdeel goed bevalt, bouwen we hierop verder:
-
-1. **Dashboard** — startscherm met een overzicht van wat deze week aandacht nodig heeft,
-   over alle onderdelen (jaarplanning, team en actielijst) heen.
+De vier onderdelen uit de oorspronkelijke wens zijn allemaal gebouwd: Team, Jaarplanning,
+Actielijst en Dashboard. Wil je iets aanpassen, uitbreiden of anders inrichten — geef het
+gewoon aan.
