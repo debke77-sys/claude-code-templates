@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zorgplanner — Jaarplanning</title>
+<style>
+  :root {
+    --blauw: #2563eb;
+    --blauw-donker: #1d4ed8;
+    --groen: #16a34a;
+    --geel: #ca8a04;
+    --oranje: #ea580c;
+    --rood: #dc2626;
+    --grijs-bg: #f4f6f9;
+    --grijs-rand: #d9dee5;
+    --grijs-tekst: #5b6472;
+    --tekst: #1f2937;
+    --wit: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--grijs-bg);
+    color: var(--tekst);
+  }
+  header {
+    background: var(--wit);
+    border-bottom: 1px solid var(--grijs-rand);
+    padding: 0 24px;
+  }
+  header .titelbalk {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0 8px 0;
+  }
+  header h1 {
+    font-size: 20px;
+    margin: 0;
+  }
+  header h1 .sub {
+    font-weight: 400;
+    color: var(--grijs-tekst);
+    font-size: 14px;
+    display: block;
+    margin-top: 2px;
+  }
+  nav {
+    display: flex;
+    gap: 4px;
+    padding-bottom: 0;
+  }
+  nav button {
+    border: none;
+    background: none;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--grijs-tekst);
+    border-bottom: 3px solid transparent;
+    border-radius: 6px 6px 0 0;
+  }
+  nav button.actief {
+    color: var(--blauw-donker);
+    border-bottom: 3px solid var(--blauw);
+    font-weight: 600;
+    background: #eef3ff;
+  }
+  nav button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  .kaart {
+    background: var(--wit);
+    border: 1px solid var(--grijs-rand);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .kaart h2 {
+    margin-top: 0;
+    font-size: 17px;
+  }
+  .melding {
+    background: #eef3ff;
+    border: 1px solid #c7d7fb;
+    color: var(--blauw-donker);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .samenvatting {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .tegel {
+    flex: 1;
+    min-width: 150px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--wit);
+  }
+  .tegel .getal { font-size: 28px; font-weight: 700; display: block; }
+  .tegel .label { font-size: 13px; opacity: 0.9; }
+  .tegel.rood { background: var(--rood); }
+  .tegel.oranje { background: var(--oranje); }
+  .tegel.geel { background: var(--geel); }
+  .tegel.grijs { background: var(--grijs-tekst); }
+  .filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .filters label {
+    font-size: 13px;
+    color: var(--grijs-tekst);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  select, input[type=text], input[type=number], input[type=date] {
+    padding: 7px 10px;
+    border: 1px solid var(--grijs-rand);
+    border-radius: 6px;
+    font-size: 14px;
+    background: var(--wit);
+    color: var(--tekst);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid #eef1f5;
+  }
+  th {
+    color: var(--grijs-tekst);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  tr:hover td { background: #fafbfd; }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--wit);
+  }
+  .badge.verlopen { background: var(--rood); }
+  .badge.deze-week { background: var(--oranje); }
+  .badge.deze-maand { background: var(--geel); }
+  .badge.later { background: #64748b; }
+  button.actie {
+    background: var(--blauw);
+    color: var(--wit);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-right: 6px;
+  }
+  button.actie:hover { background: var(--blauw-donker); }
+  button.subtiel {
+    background: none;
+    border: 1px solid var(--grijs-rand);
+    color: var(--tekst);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  button.subtiel:hover { background: var(--grijs-bg); }
+  button.gevaar {
+    background: none;
+    border: 1px solid #f3c6c6;
+    color: var(--rood);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .rij-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  details.instellingen summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--blauw-donker);
+    padding: 6px 0;
+  }
+  .instel-blok { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--grijs-rand); }
+  .instel-blok h3 { font-size: 14px; margin-bottom: 8px; }
+  .placeholder-tab {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--grijs-tekst);
+  }
+  footer {
+    text-align: center;
+    color: var(--grijs-tekst);
+    font-size: 12px;
+    padding: 20px;
+  }
+  #toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--tekst);
+    color: var(--wit);
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.25s ease;
+    pointer-events: none;
+    max-width: 320px;
+  }
+  #toast.zichtbaar { opacity: 1; transform: translateY(0); }
+  .knopbalk { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .klein-label { font-size: 12px; color: var(--grijs-tekst); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="titelbalk">
+    <h1>Zorgplanner
+      <span class="sub">Voorbeeldomgeving met fictieve namen — vervang dit via Instellingen door je eigen gegevens</span>
+    </h1>
+  </div>
+  <nav id="nav"></nav>
+</header>
+
+<main id="main"></main>
+
+<footer>Alle gegevens worden alleen lokaal in deze browser opgeslagen (localStorage) — er wordt niets online verzonden.</footer>
+<div id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  const OPSLAGSLEUTEL = "zorgplanner-data-v1";
+
+  /* ---------- Datumhelpers ---------- */
+  function isoVan(d) {
+    const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+  function vandaag() { return isoVan(new Date()); }
+  function naarNL(iso) {
+    const [y, m, d] = iso.split("-");
+    return `${d}-${m}-${y}`;
+  }
+  function voegMaandenToe(iso, maanden) {
+    const d = new Date(iso + "T00:00:00");
+    d.setMonth(d.getMonth() + maanden);
+    return isoVan(d);
+  }
+  function dagenTot(iso) {
+    const a = new Date(vandaag() + "T00:00:00");
+    const b = new Date(iso + "T00:00:00");
+    return Math.round((b - a) / 86400000);
+  }
+  function hashOffset(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return h;
+  }
+
+  /* ---------- Demo-data (fictief) opbouwen ---------- */
+  function nieuwId(prefix) { return prefix + Math.random().toString(36).slice(2, 9); }
+
+  function bouwVoorbeeldData() {
+    const locaties = [
+      { id: "loc1", naam: "De Lindenhof" },
+      { id: "loc2", naam: "Zonnehoeve" },
+      { id: "loc3", naam: "Beukenpark" },
+      { id: "loc4", naam: "Meidoornhuis" },
+    ];
+
+    const bewoners = [
+      { id: "bew1", naam: "Jan Willemsen", locatieId: "loc1" },
+      { id: "bew2", naam: "Grietje Bosma", locatieId: "loc1" },
+      { id: "bew3", naam: "Piet Hendriksen", locatieId: "loc1" },
+      { id: "bew4", naam: "Antonia de Groot", locatieId: "loc1" },
+      { id: "bew5", naam: "Cornelis Mulder", locatieId: "loc2" },
+      { id: "bew6", naam: "Sophie van Dam", locatieId: "loc2" },
+      { id: "bew7", naam: "Hendrik Jansen", locatieId: "loc2" },
+      { id: "bew8", naam: "Maria Peters", locatieId: "loc2" },
+      { id: "bew9", naam: "Willem de Boer", locatieId: "loc3" },
+      { id: "bew10", naam: "Anna Visser", locatieId: "loc3" },
+      { id: "bew11", naam: "Gerrit Smit", locatieId: "loc3" },
+      { id: "bew12", naam: "Johanna Bakker", locatieId: "loc4" },
+      { id: "bew13", naam: "Klaas Dijkstra", locatieId: "loc4" },
+      { id: "bew14", naam: "Elisabeth Kramer", locatieId: "loc4" },
+    ];
+
+    const medewerkers = [
+      { id: "med1", naam: "Sanne de Vries", locatieId: "loc1" },
+      { id: "med2", naam: "Tom Verhoeven", locatieId: "loc1" },
+      { id: "med3", naam: "Fatima El Amrani", locatieId: "loc2" },
+      { id: "med4", naam: "Bram Koster", locatieId: "loc2" },
+      { id: "med5", naam: "Lisa Postma", locatieId: "loc2" },
+      { id: "med6", naam: "Daan Huisman", locatieId: "loc3" },
+      { id: "med7", naam: "Nadia Yilmaz", locatieId: "loc3" },
+      { id: "med8", naam: "Ruben Terpstra", locatieId: "loc4" },
+      { id: "med9", naam: "Eva Scholten", locatieId: "loc4" },
+      { id: "med10", naam: "Mark van Leeuwen", locatieId: "loc4" },
+    ];
+
+    const taakTypes = [
+      { id: "tt1", naam: "Dossiercheck", doelgroep: "bewoner", frequentieMaanden: 6, omschrijving: "Controle van het zorgdossier op volledigheid en actualiteit." },
+      { id: "tt2", naam: "Evaluatie zorgplan", doelgroep: "bewoner", frequentieMaanden: 12, omschrijving: "Jaarlijkse evaluatie van het zorgplan met bewoner en/of familie." },
+      { id: "tt3", naam: "Ontwikkelgesprek", doelgroep: "medewerker", frequentieMaanden: 12, omschrijving: "Gesprek over ontwikkeldoelen volgens de GROW-methode." },
+      { id: "tt4", naam: "Functioneringsgesprek", doelgroep: "medewerker", frequentieMaanden: 12, omschrijving: "Jaarlijks functioneringsgesprek." },
+    ];
+
+    const taken = [];
+    function maakTaken(personen, persoonType) {
+      personen.forEach((p) => {
+        taakTypes.filter((tt) => tt.doelgroep === persoonType).forEach((tt) => {
+          const offset = (hashOffset(p.id + tt.id) % 366) - 25; // range: -25 (iets te laat) t/m 340 dagen vooruit
+          const d = new Date();
+          d.setDate(d.getDate() + offset);
+          taken.push({
+            id: nieuwId("taak"),
+            taakTypeId: tt.id,
+            persoonType,
+            persoonId: p.id,
+            locatieId: p.locatieId,
+            volgendeDatum: isoVan(d),
+            laatsteVoltooid: null,
+            historie: [],
+          });
+        });
+      });
+    }
+    maakTaken(bewoners, "bewoner");
+    maakTaken(medewerkers, "medewerker");
+
+    return { locaties, bewoners, medewerkers, taakTypes, taken };
+  }
+
+  /* ---------- Status & opslag ---------- */
+  let state = laadState();
+
+  function laadState() {
+    try {
+      const ruw = localStorage.getItem(OPSLAGSLEUTEL);
+      if (ruw) return JSON.parse(ruw);
+    } catch (e) { /* corrupte data, opnieuw seeden */ }
+    const nieuw = bouwVoorbeeldData();
+    localStorage.setItem(OPSLAGSLEUTEL, JSON.stringify(nieuw));
+    return nieuw;
+  }
+  function bewaarState() {
+    localStorage.setItem(OPSLAGSLEUTEL, JSON.stringify(state));
+  }
+
+  function toon(bericht) {
+    const el = document.getElementById("toast");
+    el.textContent = bericht;
+    el.classList.add("zichtbaar");
+    clearTimeout(toon._t);
+    toon._t = setTimeout(() => el.classList.remove("zichtbaar"), 3200);
+  }
+
+  /* ---------- Opzoekhelpers ---------- */
+  function persoonNaam(taak) {
+    const bron = taak.persoonType === "bewoner" ? state.bewoners : state.medewerkers;
+    const p = bron.find((x) => x.id === taak.persoonId);
+    return p ? p.naam : "(onbekend)";
+  }
+  function locatieNaam(id) {
+    const l = state.locaties.find((x) => x.id === id);
+    return l ? l.naam : "(onbekend)";
+  }
+  function taakTypeVan(id) { return state.taakTypes.find((t) => t.id === id); }
+
+  function statusVan(taak) {
+    const dagen = dagenTot(taak.volgendeDatum);
+    if (dagen < 0) return "verlopen";
+    if (dagen <= 7) return "deze-week";
+    if (dagen <= 30) return "deze-maand";
+    return "later";
+  }
+  const statusLabel = {
+    verlopen: "Verlopen",
+    "deze-week": "Deze week",
+    "deze-maand": "Deze maand",
+    later: "Later dit jaar",
+  };
+
+  /* ---------- Acties ---------- */
+  function markeerAfgerond(taakId) {
+    const taak = state.taken.find((t) => t.id === taakId);
+    if (!taak) return;
+    const tt = taakTypeVan(taak.taakTypeId);
+    taak.historie.push(vandaag());
+    taak.laatsteVoltooid = vandaag();
+    taak.volgendeDatum = voegMaandenToe(vandaag(), tt.frequentieMaanden);
+    bewaarState();
+    render();
+    toon(`Genoteerd als afgerond. Volgende "${tt.naam}" gepland op ${naarNL(taak.volgendeDatum)}.`);
+  }
+
+  function verzetDatum(taakId, nieuweDatum) {
+    const taak = state.taken.find((t) => t.id === taakId);
+    if (!taak || !nieuweDatum) return;
+    taak.volgendeDatum = nieuweDatum;
+    bewaarState();
+    render();
+    toon(`Datum aangepast naar ${naarNL(nieuweDatum)}.`);
+  }
+
+  function wijzigTaakType(id, veld, waarde) {
+    const tt = taakTypeVan(id);
+    if (!tt) return;
+    if (veld === "frequentieMaanden") waarde = Math.max(1, parseInt(waarde, 10) || 1);
+    tt[veld] = waarde;
+    bewaarState();
+    render();
+  }
+
+  function verwijderTaakType(id) {
+    if (!confirm("Dit taaktype en alle bijbehorende geplande taken verwijderen?")) return;
+    state.taakTypes = state.taakTypes.filter((t) => t.id !== id);
+    state.taken = state.taken.filter((t) => t.taakTypeId !== id);
+    bewaarState();
+    render();
+  }
+
+  function nieuwTaakType() {
+    const doelgroep = "bewoner";
+    const tt = { id: nieuwId("tt"), naam: "Nieuw taaktype", doelgroep, frequentieMaanden: 12, omschrijving: "" };
+    state.taakTypes.push(tt);
+    const doelpersonen = doelgroep === "bewoner" ? state.bewoners : state.medewerkers;
+    doelpersonen.forEach((p) => {
+      state.taken.push({
+        id: nieuwId("taak"), taakTypeId: tt.id, persoonType: doelgroep, persoonId: p.id,
+        locatieId: p.locatieId, volgendeDatum: voegMaandenToe(vandaag(), tt.frequentieMaanden),
+        laatsteVoltooid: null, historie: [],
+      });
+    });
+    bewaarState();
+    render();
+  }
+
+  function voegPersoonToe(type) {
+    const naam = prompt(`Naam van de nieuwe ${type === "bewoner" ? "bewoner" : "medewerker"}:`);
+    if (!naam || !naam.trim()) return;
+    if (state.locaties.length === 0) { alert("Voeg eerst een locatie toe."); return; }
+    const locatieId = state.locaties[0].id;
+    const p = { id: nieuwId(type === "bewoner" ? "bew" : "med"), naam: naam.trim(), locatieId };
+    (type === "bewoner" ? state.bewoners : state.medewerkers).push(p);
+    state.taakTypes.filter((tt) => tt.doelgroep === type).forEach((tt) => {
+      state.taken.push({
+        id: nieuwId("taak"), taakTypeId: tt.id, persoonType: type, persoonId: p.id,
+        locatieId, volgendeDatum: voegMaandenToe(vandaag(), tt.frequentieMaanden),
+        laatsteVoltooid: null, historie: [],
+      });
+    });
+    bewaarState();
+    render();
+    toon(`${naam.trim()} toegevoegd. Standaardlocatie: ${locatieNaam(locatieId)} — pas dit zo nodig aan.`);
+  }
+
+  function verwijderPersoon(type, id) {
+    const bron = type === "bewoner" ? "bewoners" : "medewerkers";
+    if (!confirm("Deze persoon en alle bijbehorende geplande taken verwijderen?")) return;
+    state[bron] = state[bron].filter((p) => p.id !== id);
+    state.taken = state.taken.filter((t) => !(t.persoonType === type && t.persoonId === id));
+    bewaarState();
+    render();
+  }
+
+  function wijzigPersoonLocatie(type, id, locatieId) {
+    const bron = type === "bewoner" ? state.bewoners : state.medewerkers;
+    const p = bron.find((x) => x.id === id);
+    if (!p) return;
+    p.locatieId = locatieId;
+    state.taken.filter((t) => t.persoonType === type && t.persoonId === id).forEach((t) => t.locatieId = locatieId);
+    bewaarState();
+    render();
+  }
+
+  function voegLocatieToe() {
+    const naam = prompt("Naam van de nieuwe locatie:");
+    if (!naam || !naam.trim()) return;
+    state.locaties.push({ id: nieuwId("loc"), naam: naam.trim() });
+    bewaarState();
+    render();
+  }
+
+  function verwijderLocatie(id) {
+    const inGebruik = state.bewoners.some((b) => b.locatieId === id) || state.medewerkers.some((m) => m.locatieId === id);
+    if (inGebruik) { alert("Verplaats eerst alle bewoners en medewerkers van deze locatie naar een andere locatie."); return; }
+    if (!confirm("Deze locatie verwijderen?")) return;
+    state.locaties = state.locaties.filter((l) => l.id !== id);
+    bewaarState();
+    render();
+  }
+
+  function resetVoorbeelddata() {
+    if (!confirm("Alle huidige gegevens wissen en terugzetten naar de fictieve voorbeelddata? Dit kan niet ongedaan worden gemaakt.")) return;
+    state = bouwVoorbeeldData();
+    bewaarState();
+    render();
+    toon("Teruggezet naar de voorbeelddata.");
+  }
+
+  function exporteer() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `zorgplanner-backup-${vandaag()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importeer(bestand) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data.locaties || !data.taken) throw new Error("ongeldig bestand");
+        if (!confirm("Huidige gegevens vervangen door de inhoud van dit back-upbestand?")) return;
+        state = data;
+        bewaarState();
+        render();
+        toon("Back-up geïmporteerd.");
+      } catch (e) {
+        alert("Dit bestand kon niet worden gelezen als een geldige back-up.");
+      }
+    };
+    reader.readAsText(bestand);
+  }
+
+  /* ---------- Weergave ---------- */
+  let huidigTab = "jaarplanning";
+  let filterLocatie = "alle";
+  let filterDoelgroep = "alle";
+  let filterStatus = "alle";
+
+  function renderNav() {
+    const tabs = [
+      { id: "jaarplanning", label: "Jaarplanning", actief: true },
+      { id: "team", label: "Team", actief: false },
+      { id: "actielijst", label: "Actielijst", actief: false },
+      { id: "dashboard", label: "Dashboard", actief: false },
+    ];
+    const nav = document.getElementById("nav");
+    nav.innerHTML = tabs.map((t) => {
+      const disabled = !t.actief;
+      return `<button data-tab="${t.id}" class="${huidigTab === t.id ? "actief" : ""}" ${disabled ? "disabled title=\"Volgt in een volgende stap\"" : ""}>${t.label}${disabled ? " (binnenkort)" : ""}</button>`;
+    }).join("");
+    nav.querySelectorAll("button:not([disabled])").forEach((b) => {
+      b.addEventListener("click", () => { huidigTab = b.dataset.tab; render(); });
+    });
+  }
+
+  function renderJaarplanning() {
+    const alleTaken = state.taken.map((t) => ({ taak: t, status: statusVan(t) }));
+    const aantal = (s) => alleTaken.filter((x) => x.status === s).length;
+
+    let zichtbaar = alleTaken;
+    if (filterLocatie !== "alle") zichtbaar = zichtbaar.filter((x) => x.taak.locatieId === filterLocatie);
+    if (filterDoelgroep !== "alle") zichtbaar = zichtbaar.filter((x) => x.taak.persoonType === filterDoelgroep);
+    if (filterStatus !== "alle") zichtbaar = zichtbaar.filter((x) => x.status === filterStatus);
+    zichtbaar.sort((a, b) => a.taak.volgendeDatum.localeCompare(b.taak.volgendeDatum));
+
+    const locatieOpties = state.locaties.map((l) => `<option value="${l.id}" ${filterLocatie === l.id ? "selected" : ""}>${l.naam}</option>`).join("");
+
+    const rijen = zichtbaar.map(({ taak, status }) => {
+      const tt = taakTypeVan(taak.taakTypeId);
+      return `
+        <tr>
+          <td>${persoonNaam(taak)}</td>
+          <td>${taak.persoonType === "bewoner" ? "Bewoner" : "Medewerker"}</td>
+          <td>${locatieNaam(taak.locatieId)}</td>
+          <td>${tt ? tt.naam : "(verwijderd)"}</td>
+          <td>${naarNL(taak.volgendeDatum)}</td>
+          <td><span class="badge ${status}">${statusLabel[status]}</span></td>
+          <td>${taak.laatsteVoltooid ? naarNL(taak.laatsteVoltooid) : "—"}</td>
+          <td>
+            <button class="actie" data-actie="afronden" data-id="${taak.id}">Markeer als afgerond</button>
+            <input type="date" data-actie="verzetten" data-id="${taak.id}" value="${taak.volgendeDatum}" title="Datum verzetten">
+          </td>
+        </tr>`;
+    }).join("");
+
+    return `
+      <div class="melding">
+        Dit is het eerste onderdeel van de Zorgplanner: de <strong>jaarplanning</strong>. Terugkerende taken (dossierchecks,
+        evaluaties, ontwikkel- en functioneringsgesprekken) worden hier automatisch opnieuw ingepland zodra je ze
+        afrondt. Team, Actielijst en Dashboard volgen in latere stappen.
+      </div>
+
+      <div class="samenvatting">
+        <div class="tegel rood"><span class="getal">${aantal("verlopen")}</span><span class="label">Verlopen</span></div>
+        <div class="tegel oranje"><span class="getal">${aantal("deze-week")}</span><span class="label">Deze week</span></div>
+        <div class="tegel geel"><span class="getal">${aantal("deze-maand")}</span><span class="label">Deze maand</span></div>
+        <div class="tegel grijs"><span class="getal">${aantal("later")}</span><span class="label">Later dit jaar</span></div>
+      </div>
+
+      <div class="kaart">
+        <div class="filters">
+          <label>Locatie
+            <select id="f-locatie">
+              <option value="alle" ${filterLocatie === "alle" ? "selected" : ""}>Alle locaties</option>
+              ${locatieOpties}
+            </select>
+          </label>
+          <label>Doelgroep
+            <select id="f-doelgroep">
+              <option value="alle" ${filterDoelgroep === "alle" ? "selected" : ""}>Bewoners en medewerkers</option>
+              <option value="bewoner" ${filterDoelgroep === "bewoner" ? "selected" : ""}>Alleen bewoners</option>
+              <option value="medewerker" ${filterDoelgroep === "medewerker" ? "selected" : ""}>Alleen medewerkers</option>
+            </select>
+          </label>
+          <label>Status
+            <select id="f-status">
+              <option value="alle" ${filterStatus === "alle" ? "selected" : ""}>Alle statussen</option>
+              <option value="verlopen" ${filterStatus === "verlopen" ? "selected" : ""}>Verlopen</option>
+              <option value="deze-week" ${filterStatus === "deze-week" ? "selected" : ""}>Deze week</option>
+              <option value="deze-maand" ${filterStatus === "deze-maand" ? "selected" : ""}>Deze maand</option>
+              <option value="later" ${filterStatus === "later" ? "selected" : ""}>Later dit jaar</option>
+            </select>
+          </label>
+        </div>
+
+        <table>
+          <thead><tr>
+            <th>Naam</th><th>Type</th><th>Locatie</th><th>Taak</th><th>Gepland op</th><th>Status</th><th>Laatst afgerond</th><th>Acties</th>
+          </tr></thead>
+          <tbody>${rijen || `<tr><td colspan="8" style="text-align:center;color:var(--grijs-tekst);padding:24px;">Geen taken gevonden met deze filters.</td></tr>`}</tbody>
+        </table>
+        <p class="klein-label">${zichtbaar.length} van ${alleTaken.length} taken getoond.</p>
+      </div>
+
+      <div class="kaart">
+        <details class="instellingen" id="instellingen-blok">
+          <summary>Instellingen: taaktypes, locaties, bewoners en medewerkers</summary>
+
+          <div class="instel-blok">
+            <h3>Taaktypes (bepalen wat er terugkeert en hoe vaak)</h3>
+            <table>
+              <thead><tr><th>Naam</th><th>Doelgroep</th><th>Frequentie (maanden)</th><th>Omschrijving</th><th></th></tr></thead>
+              <tbody>
+                ${state.taakTypes.map((tt) => `
+                  <tr>
+                    <td><input type="text" data-tt="${tt.id}" data-veld="naam" value="${tt.naam}"></td>
+                    <td>${tt.doelgroep === "bewoner" ? "Bewoner" : "Medewerker"}</td>
+                    <td><input type="number" min="1" style="width:70px" data-tt="${tt.id}" data-veld="frequentieMaanden" value="${tt.frequentieMaanden}"></td>
+                    <td><input type="text" style="width:100%" data-tt="${tt.id}" data-veld="omschrijving" value="${tt.omschrijving || ""}"></td>
+                    <td><button class="gevaar" data-verwijder-tt="${tt.id}">Verwijderen</button></td>
+                  </tr>`).join("")}
+              </tbody>
+            </table>
+            <div class="knopbalk"><button class="subtiel" id="btn-nieuw-tt">+ Nieuw taaktype (bewoner)</button></div>
+          </div>
+
+          <div class="instel-blok">
+            <h3>Locaties</h3>
+            <table>
+              <thead><tr><th>Naam</th><th></th></tr></thead>
+              <tbody>${state.locaties.map((l) => `<tr><td>${l.naam}</td><td><button class="gevaar" data-verwijder-loc="${l.id}">Verwijderen</button></td></tr>`).join("")}</tbody>
+            </table>
+            <div class="knopbalk"><button class="subtiel" id="btn-nieuw-loc">+ Nieuwe locatie</button></div>
+          </div>
+
+          <div class="instel-blok">
+            <h3>Bewoners (${state.bewoners.length})</h3>
+            <table>
+              <thead><tr><th>Naam</th><th>Locatie</th><th></th></tr></thead>
+              <tbody>${state.bewoners.map((b) => `
+                <tr><td>${b.naam}</td><td>
+                  <select data-persoon-locatie="bewoner:${b.id}">
+                    ${state.locaties.map((l) => `<option value="${l.id}" ${l.id === b.locatieId ? "selected" : ""}>${l.naam}</option>`).join("")}
+                  </select>
+                </td><td><button class="gevaar" data-verwijder-persoon="bewoner:${b.id}">Verwijderen</button></td></tr>`).join("")}
+              </tbody>
+            </table>
+            <div class="knopbalk"><button class="subtiel" id="btn-nieuw-bewoner">+ Nieuwe bewoner</button></div>
+          </div>
+
+          <div class="instel-blok">
+            <h3>Medewerkers (${state.medewerkers.length})</h3>
+            <table>
+              <thead><tr><th>Naam</th><th>Locatie</th><th></th></tr></thead>
+              <tbody>${state.medewerkers.map((m) => `
+                <tr><td>${m.naam}</td><td>
+                  <select data-persoon-locatie="medewerker:${m.id}">
+                    ${state.locaties.map((l) => `<option value="${l.id}" ${l.id === m.locatieId ? "selected" : ""}>${l.naam}</option>`).join("")}
+                  </select>
+                </td><td><button class="gevaar" data-verwijder-persoon="medewerker:${m.id}">Verwijderen</button></td></tr>`).join("")}
+              </tbody>
+            </table>
+            <div class="knopbalk"><button class="subtiel" id="btn-nieuw-medewerker">+ Nieuwe medewerker</button></div>
+          </div>
+
+          <div class="instel-blok">
+            <h3>Back-up</h3>
+            <p class="klein-label">Er is geen online opslag — bewaar zelf af en toe een back-upbestand, bijvoorbeeld op een netwerkschijf.</p>
+            <div class="knopbalk">
+              <button class="subtiel" id="btn-export">Back-up downloaden (.json)</button>
+              <label class="subtiel" style="cursor:pointer;">
+                Back-up terugzetten
+                <input type="file" id="btn-import" accept="application/json" style="display:none;">
+              </label>
+              <button class="gevaar" id="btn-reset">Terugzetten naar voorbeelddata</button>
+            </div>
+          </div>
+        </details>
+      </div>
+    `;
+  }
+
+  function renderPlaceholder(naam) {
+    return `<div class="placeholder-tab"><h2>${naam}</h2><p>Dit onderdeel wordt in een volgende stap gebouwd, voortbouwend op dezelfde bewoners-, medewerkers- en locatiegegevens als de jaarplanning.</p></div>`;
+  }
+
+  function render() {
+    renderNav();
+    const main = document.getElementById("main");
+    if (huidigTab === "jaarplanning") {
+      main.innerHTML = renderJaarplanning();
+      koppelJaarplanningEvents();
+    } else {
+      main.innerHTML = renderPlaceholder(
+        huidigTab === "team" ? "Team" : huidigTab === "actielijst" ? "Actielijst" : "Dashboard"
+      );
+    }
+  }
+
+  function koppelJaarplanningEvents() {
+    const bij = (id, event, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(event, fn); };
+
+    bij("f-locatie", "change", (e) => { filterLocatie = e.target.value; render(); });
+    bij("f-doelgroep", "change", (e) => { filterDoelgroep = e.target.value; render(); });
+    bij("f-status", "change", (e) => { filterStatus = e.target.value; render(); });
+
+    document.querySelectorAll("[data-actie='afronden']").forEach((b) => b.addEventListener("click", () => markeerAfgerond(b.dataset.id)));
+    document.querySelectorAll("[data-actie='verzetten']").forEach((inp) => inp.addEventListener("change", () => verzetDatum(inp.dataset.id, inp.value)));
+
+    document.querySelectorAll("[data-tt]").forEach((inp) => inp.addEventListener("change", () => wijzigTaakType(inp.dataset.tt, inp.dataset.veld, inp.value)));
+    document.querySelectorAll("[data-verwijder-tt]").forEach((b) => b.addEventListener("click", () => verwijderTaakType(b.dataset.verwijderTt)));
+    bij("btn-nieuw-tt", "click", nieuwTaakType);
+
+    document.querySelectorAll("[data-verwijder-loc]").forEach((b) => b.addEventListener("click", () => verwijderLocatie(b.dataset.verwijderLoc)));
+    bij("btn-nieuw-loc", "click", voegLocatieToe);
+
+    document.querySelectorAll("[data-verwijder-persoon]").forEach((b) => b.addEventListener("click", () => {
+      const [type, id] = b.dataset.verwijderPersoon.split(":");
+      verwijderPersoon(type, id);
+    }));
+    document.querySelectorAll("[data-persoon-locatie]").forEach((sel) => sel.addEventListener("change", () => {
+      const [type, id] = sel.dataset.persoonLocatie.split(":");
+      wijzigPersoonLocatie(type, id, sel.value);
+    }));
+    bij("btn-nieuw-bewoner", "click", () => voegPersoonToe("bewoner"));
+    bij("btn-nieuw-medewerker", "click", () => voegPersoonToe("medewerker"));
+
+    bij("btn-export", "click", exporteer);
+    bij("btn-reset", "click", resetVoorbeelddata);
+    bij("btn-import", "change", (e) => { if (e.target.files[0]) importeer(e.target.files[0]); });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

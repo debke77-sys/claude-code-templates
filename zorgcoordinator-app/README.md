@@ -1,0 +1,60 @@
+# Zorgplanner (voorbeeld)
+
+Eenvoudige web-app voor een coördinator in een kleinschalige zorginstelling. Vervangt losse
+Excel-bestanden voor teamoverzicht, jaarplanning, actielijst en een startdashboard.
+
+**Status:** eerste onderdeel klaar — **Jaarplanning**. Team, Actielijst en Dashboard volgen later.
+
+## Hoe open ik de app?
+
+Geen installatie nodig. Dubbelklik op `index.html` (of open het bestand via je browser:
+`Bestand > Openen`). De app werkt volledig in je browser, in Chrome, Edge of Firefox.
+
+## Waar blijven mijn gegevens?
+
+Alle gegevens worden lokaal opgeslagen in de browser waarin je de app opent (via
+`localStorage`) — er wordt niets naar internet verstuurd. Let op:
+
+- Gegevens zijn gekoppeld aan de combinatie van browser + computer waarop je ze invoert.
+  Open je de app op een andere computer of in een andere browser, dan zie je weer de
+  fictieve voorbeeldgegevens.
+- Maak daarom af en toe een back-up via **Instellingen > Back-up > Back-up downloaden**.
+  Dat levert een `.json`-bestand op dat je kunt bewaren (bijvoorbeeld op een netwerkschijf)
+  en later kunt terugzetten via **Back-up terugzetten**.
+
+## Wat zit er nu in?
+
+De app start met fictieve voorbeeldgegevens: 4 locaties, 14 bewoners en 10 medewerkers.
+Vervang deze via **Instellingen** (onderaan het scherm) door je eigen namen — of laat ze
+gewoon staan als je eerst wilt oefenen met de app.
+
+Standaard terugkerende taken in de jaarplanning:
+
+| Taak | Voor | Frequentie |
+|---|---|---|
+| Dossiercheck | Bewoner | elke 6 maanden |
+| Evaluatie zorgplan | Bewoner | elk jaar |
+| Ontwikkelgesprek (GROW) | Medewerker | elk jaar |
+| Functioneringsgesprek | Medewerker | elk jaar |
+
+Je kunt taaktypes, frequenties, locaties, bewoners en medewerkers zelf aanpassen via
+**Instellingen** onderaan het scherm.
+
+## Hoe werkt de jaarplanning?
+
+- Elke taak heeft een geplande datum. De kleur laat zien hoe urgent iets is: rood
+  (verlopen), oranje (deze week), geel (deze maand), grijs (later dit jaar).
+- Klik op **Markeer als afgerond** zodra je een taak hebt gedaan. De app plant de
+  volgende ronde automatisch in, op basis van de ingestelde frequentie.
+- Je kunt een datum ook handmatig verzetten met het datumveld naast een taak.
+- Filter op locatie, op bewoners/medewerkers, of op status.
+
+## Volgende stappen
+
+Zodra dit onderdeel goed bevalt, bouwen we hierop verder:
+
+1. **Team** — ontwikkeldoelen (GROW), observaties (hoor/zie/voel/interpreteer) en
+   gespreksverslagen per medewerker.
+2. **Actielijst** — taken per locatie/persoon met deadline en status.
+3. **Dashboard** — startscherm met een overzicht van wat deze week aandacht nodig heeft,
+   over alle onderdelen heen.
