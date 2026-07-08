@@ -486,7 +486,36 @@
       afspraken: v.afspraken,
     }));
 
-    return { locaties, bewoners, medewerkers, taakTypes, taken, ontwikkeldoelen, observaties, gespreksverslagen };
+    /* --- Actielijst (fictief) --- */
+    const actieData = [
+      { titel: "Brandblussers laten keuren", omschrijving: "Jaarlijkse keuring door erkend bedrijf, afspraak inplannen.", locatieId: "loc3", persoonType: "geen", persoonId: null, dagenTot: 5, status: "open" },
+      { titel: "Rolstoel laten repareren", omschrijving: "Rempedaal klemt, melding van avonddienst.", locatieId: "loc1", persoonType: "bewoner", persoonId: "bew3", dagenTot: -3, status: "open" },
+      { titel: "Nieuwe medicatiekast bestellen", omschrijving: "Huidige kast sluit niet meer goed af.", locatieId: "loc2", persoonType: "geen", persoonId: null, dagenTot: 20, status: "bezig" },
+      { titel: "Verjaardag bewoner voorbereiden", omschrijving: "Taart en kaart regelen, familie is uitgenodigd.", locatieId: "loc3", persoonType: "bewoner", persoonId: "bew10", dagenTot: 2, status: "open" },
+      { titel: "Rooster afstemmen met medewerker", omschrijving: "Wisseling van een avonddienst bespreken.", locatieId: "loc2", persoonType: "medewerker", persoonId: "med4", dagenTot: 10, status: "open" },
+      { titel: "BHV-herhalingscursus inplannen", omschrijving: "Certificaat van twee medewerkers loopt binnenkort af.", locatieId: "loc1", persoonType: "geen", persoonId: null, dagenTot: 45, status: "open" },
+      { titel: "Klacht van familie opvolgen", omschrijving: "Telefonisch contact opnemen over de maaltijdtijden.", locatieId: "loc4", persoonType: "bewoner", persoonId: "bew12", dagenTot: 1, status: "open" },
+      { titel: "Inwerkschema nieuwe medewerker afronden", omschrijving: "Laatste onderdelen van het inwerktraject doornemen.", locatieId: "loc2", persoonType: "medewerker", persoonId: "med5", dagenTot: -7, status: "bezig" },
+      { titel: "Zorgdossiers overzetten naar nieuw systeem", omschrijving: "Migratie in overleg met de systeembeheerder plannen.", locatieId: "loc1", persoonType: "geen", persoonId: null, dagenTot: 60, status: "open" },
+      { titel: "Verjaardag medewerker vieren met team", omschrijving: "Kleine attentie en kaart namens het team regelen.", locatieId: "loc4", persoonType: "medewerker", persoonId: "med9", dagenTot: 4, status: "open" },
+      { titel: "Wasserij-leverancier evalueren", omschrijving: "Klachten over levertijd bespreken met de leverancier.", locatieId: "loc3", persoonType: "geen", persoonId: null, dagenTot: 30, status: "open" },
+      { titel: "Kerstversiering ophalen uit opslag", omschrijving: "Dozen staan bij de externe opslag, transport regelen.", locatieId: "loc1", persoonType: "geen", persoonId: null, dagenTot: -20, status: "afgerond", afgerondDagenGeleden: 18 },
+      { titel: "Functioneringsgesprek voorbereiden", omschrijving: "Observaties en dossier doornemen voor het gesprek.", locatieId: "loc2", persoonType: "medewerker", persoonId: "med3", dagenTot: -40, status: "afgerond", afgerondDagenGeleden: 38 },
+    ];
+    const acties = actieData.map((a) => ({
+      id: nieuwId("actie"),
+      titel: a.titel,
+      omschrijving: a.omschrijving,
+      locatieId: a.locatieId,
+      persoonType: a.persoonType,
+      persoonId: a.persoonId,
+      deadline: datumPlusDagen(a.dagenTot),
+      status: a.status,
+      aangemaaktOp: datumMinDagen(30),
+      afgerondOp: a.status === "afgerond" ? datumMinDagen(a.afgerondDagenGeleden) : null,
+    }));
+
+    return { locaties, bewoners, medewerkers, taakTypes, taken, ontwikkeldoelen, observaties, gespreksverslagen, acties };
   }
 
   /* ---------- Status & opslag ---------- */
@@ -506,6 +535,7 @@
     if (!data.ontwikkeldoelen) data.ontwikkeldoelen = [];
     if (!data.observaties) data.observaties = [];
     if (!data.gespreksverslagen) data.gespreksverslagen = [];
+    if (!data.acties) data.acties = [];
     return data;
   }
   function bewaarState() {
@@ -763,6 +793,58 @@
     render();
   }
 
+  /* ---------- Actielijst ---------- */
+  function actiePersoonNaam(actie) {
+    if (actie.persoonType === "geen" || !actie.persoonId) return "—";
+    const bron = actie.persoonType === "bewoner" ? state.bewoners : state.medewerkers;
+    const p = bron.find((x) => x.id === actie.persoonId);
+    return p ? p.naam : "(onbekend)";
+  }
+  function actieUrgentie(actie) {
+    if (actie.status === "afgerond") return null;
+    const dagen = dagenTot(actie.deadline);
+    if (dagen < 0) return "verlopen";
+    if (dagen <= 7) return "deze-week";
+    if (dagen <= 30) return "deze-maand";
+    return "later";
+  }
+
+  function voegActieToe(veld) {
+    if (!veld.titel || !veld.titel.trim()) { alert("Geef de actie een titel."); return; }
+    if (!veld.locatieId) { alert("Kies een locatie."); return; }
+    state.acties.push({
+      id: nieuwId("actie"), titel: veld.titel.trim(), omschrijving: veld.omschrijving || "",
+      locatieId: veld.locatieId, persoonType: veld.persoonType || "geen", persoonId: veld.persoonType === "geen" ? null : (veld.persoonId || null),
+      deadline: veld.deadline || vandaag(), status: "open", aangemaaktOp: vandaag(), afgerondOp: null,
+    });
+    bewaarState();
+    toon("Actie toegevoegd.");
+    render();
+  }
+
+  function wijzigActie(id, veld, waarde) {
+    const actie = state.acties.find((a) => a.id === id);
+    if (!actie) return;
+    if (veld === "status") {
+      actie.status = waarde;
+      actie.afgerondOp = waarde === "afgerond" ? vandaag() : null;
+    } else if (veld === "persoonType") {
+      actie.persoonType = waarde;
+      actie.persoonId = waarde === "geen" ? null : actie.persoonId;
+    } else {
+      actie[veld] = waarde;
+    }
+    bewaarState();
+    render();
+  }
+
+  function verwijderActie(id) {
+    if (!confirm("Deze actie verwijderen?")) return;
+    state.acties = state.acties.filter((a) => a.id !== id);
+    bewaarState();
+    render();
+  }
+
   function kiesMedewerker(id) {
     teamGekozenMedewerker = id;
     teamToonNieuwDoel = false;
@@ -787,11 +869,16 @@
   let teamToonNieuweObservatie = false;
   let teamToonNieuwVerslag = false;
 
+  let actieFilterLocatie = "alle";
+  let actieFilterPersoonType = "alle";
+  let actieFilterStatus = "actief";
+  let toonNieuweActie = false;
+
   function renderNav() {
     const tabs = [
       { id: "jaarplanning", label: "Jaarplanning", actief: true },
       { id: "team", label: "Team", actief: true },
-      { id: "actielijst", label: "Actielijst", actief: false },
+      { id: "actielijst", label: "Actielijst", actief: true },
       { id: "dashboard", label: "Dashboard", actief: false },
     ];
     const nav = document.getElementById("nav");
@@ -838,8 +925,8 @@
       <div class="melding">
         Dit is de <strong>jaarplanning</strong>. Terugkerende taken (dossierchecks, evaluaties, ontwikkel- en
         functioneringsgesprekken) worden hier automatisch opnieuw ingepland zodra je ze afrondt. Bekijk het tabblad
-        <strong>Team</strong> voor ontwikkeldoelen, observaties en gespreksverslagen per medewerker. Actielijst en
-        Dashboard volgen in latere stappen.
+        <strong>Team</strong> voor ontwikkeldoelen, observaties en gespreksverslagen per medewerker, en
+        <strong>Actielijst</strong> voor eenmalige taken. Dashboard volgt in een latere stap.
       </div>
 
       <div class="samenvatting">
@@ -964,6 +1051,141 @@
 
   function renderPlaceholder(naam) {
     return `<div class="placeholder-tab"><h2>${naam}</h2><p>Dit onderdeel wordt in een volgende stap gebouwd, voortbouwend op dezelfde bewoners-, medewerkers- en locatiegegevens als de jaarplanning.</p></div>`;
+  }
+
+  function renderActielijst() {
+    let zichtbaar = state.acties.slice();
+    if (actieFilterLocatie !== "alle") zichtbaar = zichtbaar.filter((a) => a.locatieId === actieFilterLocatie);
+    if (actieFilterPersoonType !== "alle") zichtbaar = zichtbaar.filter((a) => a.persoonType === actieFilterPersoonType);
+    if (actieFilterStatus === "actief") zichtbaar = zichtbaar.filter((a) => a.status !== "afgerond");
+    else if (actieFilterStatus !== "alle") zichtbaar = zichtbaar.filter((a) => a.status === actieFilterStatus);
+    zichtbaar.sort((a, b) => a.deadline.localeCompare(b.deadline));
+
+    const nietAfgerond = state.acties.filter((a) => a.status !== "afgerond");
+    const aantalOpen = nietAfgerond.filter((a) => a.status === "open").length;
+    const aantalBezig = nietAfgerond.filter((a) => a.status === "bezig").length;
+    const aantalVerlopen = nietAfgerond.filter((a) => actieUrgentie(a) === "verlopen").length;
+    const aantalDezeWeek = nietAfgerond.filter((a) => actieUrgentie(a) === "deze-week").length;
+
+    const locatieOpties = state.locaties.map((l) => `<option value="${l.id}" ${actieFilterLocatie === l.id ? "selected" : ""}>${l.naam}</option>`).join("");
+
+    const rijen = zichtbaar.map((actie) => {
+      const urgentie = actieUrgentie(actie);
+      const badge = actie.status === "afgerond"
+        ? `<span class="badge later" style="background:var(--groen);">Afgerond</span>`
+        : `<span class="badge ${urgentie}">${statusLabel[urgentie]}</span>`;
+      return `
+        <tr>
+          <td><input type="text" style="width:100%" data-actie-veld="${actie.id}" data-veld="titel" value="${actie.titel}"></td>
+          <td>
+            <select data-actie-veld="${actie.id}" data-veld="locatieId">
+              ${state.locaties.map((l) => `<option value="${l.id}" ${l.id === actie.locatieId ? "selected" : ""}>${l.naam}</option>`).join("")}
+            </select>
+          </td>
+          <td>
+            <select data-actie-veld="${actie.id}" data-veld="persoonType">
+              <option value="geen" ${actie.persoonType === "geen" ? "selected" : ""}>Geen</option>
+              <option value="bewoner" ${actie.persoonType === "bewoner" ? "selected" : ""}>Bewoner</option>
+              <option value="medewerker" ${actie.persoonType === "medewerker" ? "selected" : ""}>Medewerker</option>
+            </select>
+            ${actie.persoonType === "geen" ? "" : `
+              <select data-actie-veld="${actie.id}" data-veld="persoonId">
+                ${(actie.persoonType === "bewoner" ? state.bewoners : state.medewerkers).map((p) => `<option value="${p.id}" ${p.id === actie.persoonId ? "selected" : ""}>${p.naam}</option>`).join("")}
+              </select>`}
+          </td>
+          <td><input type="date" data-actie-veld="${actie.id}" data-veld="deadline" value="${actie.deadline}"></td>
+          <td>
+            <select data-actie-veld="${actie.id}" data-veld="status">
+              <option value="open" ${actie.status === "open" ? "selected" : ""}>Open</option>
+              <option value="bezig" ${actie.status === "bezig" ? "selected" : ""}>Bezig</option>
+              <option value="afgerond" ${actie.status === "afgerond" ? "selected" : ""}>Afgerond</option>
+            </select>
+          </td>
+          <td>${badge}</td>
+          <td><button class="gevaar" data-verwijder-actie="${actie.id}">Verwijderen</button></td>
+        </tr>`;
+    }).join("");
+
+    return `
+      <div class="melding">
+        De <strong>actielijst</strong> is voor eenmalige taken per locatie en/of persoon, met een deadline en status —
+        anders dan de terugkerende taken in de jaarplanning.
+      </div>
+
+      <div class="samenvatting">
+        <div class="tegel rood"><span class="getal">${aantalVerlopen}</span><span class="label">Verlopen</span></div>
+        <div class="tegel oranje"><span class="getal">${aantalDezeWeek}</span><span class="label">Deze week</span></div>
+        <div class="tegel geel"><span class="getal">${aantalBezig}</span><span class="label">Bezig</span></div>
+        <div class="tegel grijs"><span class="getal">${aantalOpen}</span><span class="label">Open</span></div>
+      </div>
+
+      <div class="kaart">
+        <div class="filters">
+          <label>Locatie
+            <select id="actie-f-locatie">
+              <option value="alle" ${actieFilterLocatie === "alle" ? "selected" : ""}>Alle locaties</option>
+              ${locatieOpties}
+            </select>
+          </label>
+          <label>Gekoppeld aan
+            <select id="actie-f-persoontype">
+              <option value="alle" ${actieFilterPersoonType === "alle" ? "selected" : ""}>Alles</option>
+              <option value="geen" ${actieFilterPersoonType === "geen" ? "selected" : ""}>Geen specifieke persoon</option>
+              <option value="bewoner" ${actieFilterPersoonType === "bewoner" ? "selected" : ""}>Bewoners</option>
+              <option value="medewerker" ${actieFilterPersoonType === "medewerker" ? "selected" : ""}>Medewerkers</option>
+            </select>
+          </label>
+          <label>Status
+            <select id="actie-f-status">
+              <option value="actief" ${actieFilterStatus === "actief" ? "selected" : ""}>Open en bezig</option>
+              <option value="open" ${actieFilterStatus === "open" ? "selected" : ""}>Alleen open</option>
+              <option value="bezig" ${actieFilterStatus === "bezig" ? "selected" : ""}>Alleen bezig</option>
+              <option value="afgerond" ${actieFilterStatus === "afgerond" ? "selected" : ""}>Alleen afgerond</option>
+              <option value="alle" ${actieFilterStatus === "alle" ? "selected" : ""}>Alle statussen</option>
+            </select>
+          </label>
+        </div>
+
+        <table>
+          <thead><tr><th>Titel</th><th>Locatie</th><th>Gekoppeld aan</th><th>Deadline</th><th>Status</th><th>Urgentie</th><th>Acties</th></tr></thead>
+          <tbody>${rijen || `<tr><td colspan="7" style="text-align:center;color:var(--grijs-tekst);padding:24px;">Geen acties gevonden met deze filters.</td></tr>`}</tbody>
+        </table>
+        <p class="klein-label">${zichtbaar.length} van ${state.acties.length} acties getoond.</p>
+
+        ${toonNieuweActie ? `
+          <div class="nieuw-form">
+            <div class="grow-veld"><label class="mini-label">Titel</label><input type="text" id="nieuw-actie-titel" style="width:100%"></div>
+            <div class="grow-veld"><label class="mini-label">Omschrijving (optioneel)</label><textarea rows="2" id="nieuw-actie-omschrijving"></textarea></div>
+            <div class="form-grid">
+              <label class="mini-label">Locatie
+                <select id="nieuw-actie-locatie">
+                  ${state.locaties.map((l) => `<option value="${l.id}">${l.naam}</option>`).join("")}
+                </select>
+              </label>
+              <label class="mini-label">Deadline
+                <input type="date" id="nieuw-actie-deadline" value="${vandaag()}">
+              </label>
+              <label class="mini-label">Gekoppeld aan
+                <select id="nieuw-actie-persoontype">
+                  <option value="geen">Geen specifieke persoon</option>
+                  <option value="bewoner">Bewoner</option>
+                  <option value="medewerker">Medewerker</option>
+                </select>
+              </label>
+              <label class="mini-label" id="nieuw-actie-bewoner-wrap" style="display:none;">Bewoner
+                <select id="nieuw-actie-bewoner">${state.bewoners.map((b) => `<option value="${b.id}">${b.naam}</option>`).join("")}</select>
+              </label>
+              <label class="mini-label" id="nieuw-actie-medewerker-wrap" style="display:none;">Medewerker
+                <select id="nieuw-actie-medewerker">${state.medewerkers.map((m) => `<option value="${m.id}">${m.naam}</option>`).join("")}</select>
+              </label>
+            </div>
+            <div class="knopbalk">
+              <button class="actie" id="btn-opslaan-actie">Actie toevoegen</button>
+              <button class="subtiel" id="btn-annuleer-actie">Annuleren</button>
+            </div>
+          </div>` : `<div class="knopbalk"><button class="subtiel" id="btn-nieuwe-actie">+ Nieuwe actie</button></div>`}
+      </div>
+    `;
   }
 
   function renderTeam() {
@@ -1176,10 +1398,11 @@
     } else if (huidigTab === "team") {
       main.innerHTML = renderTeam();
       koppelTeamEvents();
+    } else if (huidigTab === "actielijst") {
+      main.innerHTML = renderActielijst();
+      koppelActielijstEvents();
     } else {
-      main.innerHTML = renderPlaceholder(
-        huidigTab === "actielijst" ? "Actielijst" : "Dashboard"
-      );
+      main.innerHTML = renderPlaceholder("Dashboard");
     }
   }
 
@@ -1266,6 +1489,39 @@
         samenvatting: waarde("nieuw-verslag-samenvatting"), afspraken: waarde("nieuw-verslag-afspraken"),
       });
       teamToonNieuwVerslag = false;
+    });
+  }
+
+  function koppelActielijstEvents() {
+    const bij = (id, event, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(event, fn); };
+    const waarde = (id) => { const el = document.getElementById(id); return el ? el.value : ""; };
+
+    bij("actie-f-locatie", "change", (e) => { actieFilterLocatie = e.target.value; render(); });
+    bij("actie-f-persoontype", "change", (e) => { actieFilterPersoonType = e.target.value; render(); });
+    bij("actie-f-status", "change", (e) => { actieFilterStatus = e.target.value; render(); });
+
+    document.querySelectorAll("[data-actie-veld]").forEach((el) => el.addEventListener("change", () => wijzigActie(el.dataset.actieVeld, el.dataset.veld, el.value)));
+    document.querySelectorAll("[data-verwijder-actie]").forEach((b) => b.addEventListener("click", () => verwijderActie(b.dataset.verwijderActie)));
+
+    bij("btn-nieuwe-actie", "click", () => { toonNieuweActie = true; render(); });
+    bij("btn-annuleer-actie", "click", () => { toonNieuweActie = false; render(); });
+    bij("btn-opslaan-actie", "click", () => {
+      const persoonType = waarde("nieuw-actie-persoontype");
+      const persoonId = persoonType === "bewoner" ? waarde("nieuw-actie-bewoner") : persoonType === "medewerker" ? waarde("nieuw-actie-medewerker") : null;
+      voegActieToe({
+        titel: waarde("nieuw-actie-titel"), omschrijving: waarde("nieuw-actie-omschrijving"),
+        locatieId: waarde("nieuw-actie-locatie"), deadline: waarde("nieuw-actie-deadline"),
+        persoonType, persoonId,
+      });
+      toonNieuweActie = false;
+    });
+
+    // Toon/verberg bewoner- of medewerkerselectie in het nieuwe-actieformulier zonder de rest opnieuw te tekenen.
+    bij("nieuw-actie-persoontype", "change", (e) => {
+      const bewonerWrap = document.getElementById("nieuw-actie-bewoner-wrap");
+      const medewerkerWrap = document.getElementById("nieuw-actie-medewerker-wrap");
+      if (bewonerWrap) bewonerWrap.style.display = e.target.value === "bewoner" ? "block" : "none";
+      if (medewerkerWrap) medewerkerWrap.style.display = e.target.value === "medewerker" ? "block" : "none";
     });
   }
 

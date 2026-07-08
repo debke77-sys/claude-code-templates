@@ -3,7 +3,7 @@
 Eenvoudige web-app voor een coördinator in een kleinschalige zorginstelling. Vervangt losse
 Excel-bestanden voor teamoverzicht, jaarplanning, actielijst en een startdashboard.
 
-**Status:** twee onderdelen klaar — **Jaarplanning** en **Team**. Actielijst en Dashboard volgen later.
+**Status:** drie onderdelen klaar — **Jaarplanning**, **Team** en **Actielijst**. Dashboard volgt later.
 
 ## Hoe open ik de app?
 
@@ -67,10 +67,24 @@ Je kunt taaktypes, frequenties, locaties, bewoners en medewerkers zelf aanpassen
   als in de jaarplanning.
 - Alle nieuwe items voeg je toe via een "+ Nieuw..."-knop; verwijderen kan per item.
 
+## Hoe werkt de actielijst?
+
+- Voor eenmalige taken — anders dan de terugkerende taken in de jaarplanning. Bijvoorbeeld:
+  "brandblussers laten keuren" of "rolstoel laten repareren voor bewoner X".
+- Elke actie heeft een titel, optionele omschrijving, locatie, deadline en status
+  (open/bezig/afgerond). Je kunt een actie eventueel koppelen aan een specifieke bewoner of
+  medewerker, of aan geen persoon (bijvoorbeeld een taak die alleen aan een locatie hangt).
+- De kleur van de urgentiebadge werkt hetzelfde als in de jaarplanning: rood (verlopen),
+  oranje (deze week), geel (deze maand), grijs (later). Afgeronde acties krijgen een groene
+  "Afgerond"-badge.
+- Alle velden in de tabel zijn direct te bewerken (titel, locatie, koppeling, deadline,
+  status). De standaardfilter toont alleen open en lopende acties; zet het statusfilter op
+  "Alle statussen" om ook afgeronde acties terug te zien.
+- Nieuwe acties voeg je toe via **+ Nieuwe actie**; verwijderen kan per actie.
+
 ## Volgende stappen
 
 Zodra dit onderdeel goed bevalt, bouwen we hierop verder:
 
-1. **Actielijst** — taken per locatie/persoon met deadline en status.
-2. **Dashboard** — startscherm met een overzicht van wat deze week aandacht nodig heeft,
-   over alle onderdelen heen.
+1. **Dashboard** — startscherm met een overzicht van wat deze week aandacht nodig heeft,
+   over alle onderdelen (jaarplanning, team en actielijst) heen.
