@@ -3,7 +3,7 @@
 Eenvoudige web-app voor een coördinator in een kleinschalige zorginstelling. Vervangt losse
 Excel-bestanden voor teamoverzicht, jaarplanning, actielijst en een startdashboard.
 
-**Status:** eerste onderdeel klaar — **Jaarplanning**. Team, Actielijst en Dashboard volgen later.
+**Status:** twee onderdelen klaar — **Jaarplanning** en **Team**. Actielijst en Dashboard volgen later.
 
 ## Hoe open ik de app?
 
@@ -49,12 +49,28 @@ Je kunt taaktypes, frequenties, locaties, bewoners en medewerkers zelf aanpassen
 - Je kunt een datum ook handmatig verzetten met het datumveld naast een taak.
 - Filter op locatie, op bewoners/medewerkers, of op status.
 
+## Hoe werkt het onderdeel Team?
+
+- **Teamoverzicht**: kaartjes per medewerker met locatie, aantal open ontwikkeldoelen en de
+  datum van het laatste gespreksverslag. Filter op locatie, klik op **Bekijk profiel** voor
+  details.
+- **Profiel per medewerker** bevat drie onderdelen:
+  - **Ontwikkeldoelen (GROW)** — Goal, Reality, Options, Will, met status (open/bereikt/
+    vervallen) en een streefdatum. Velden zijn direct te bewerken; wijzigingen worden
+    automatisch opgeslagen.
+  - **Observaties (hoor/zie/voel/interpreteer)** — vastleggen wat je hebt waargenomen,
+    los van je interpretatie.
+  - **Gespreksverslagen** — datum, type gesprek (ontwikkelgesprek, functioneringsgesprek of
+    ad-hoc), samenvatting en gemaakte afspraken.
+- Bovenaan elk profiel zie je ook de openstaande jaarplanning-taken (ontwikkel-/
+  functioneringsgesprek) voor die medewerker, met dezelfde **Markeer als afgerond**-knop
+  als in de jaarplanning.
+- Alle nieuwe items voeg je toe via een "+ Nieuw..."-knop; verwijderen kan per item.
+
 ## Volgende stappen
 
 Zodra dit onderdeel goed bevalt, bouwen we hierop verder:
 
-1. **Team** — ontwikkeldoelen (GROW), observaties (hoor/zie/voel/interpreteer) en
-   gespreksverslagen per medewerker.
-2. **Actielijst** — taken per locatie/persoon met deadline en status.
-3. **Dashboard** — startscherm met een overzicht van wat deze week aandacht nodig heeft,
+1. **Actielijst** — taken per locatie/persoon met deadline en status.
+2. **Dashboard** — startscherm met een overzicht van wat deze week aandacht nodig heeft,
    over alle onderdelen heen.

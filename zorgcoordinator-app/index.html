@@ -242,6 +242,59 @@
   #toast.zichtbaar { opacity: 1; transform: translateY(0); }
   .knopbalk { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
   .klein-label { font-size: 12px; color: var(--grijs-tekst); }
+  textarea {
+    padding: 7px 10px;
+    border: 1px solid var(--grijs-rand);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--wit);
+    color: var(--tekst);
+    resize: vertical;
+    width: 100%;
+  }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+  }
+  .team-kaart {
+    border: 1px solid var(--grijs-rand);
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: var(--wit);
+  }
+  .team-kaart h3 { margin: 0 0 4px 0; font-size: 15px; }
+  .team-kaart .locatie { color: var(--grijs-tekst); font-size: 13px; margin-bottom: 10px; }
+  .team-kaart .metriek { font-size: 13px; margin-bottom: 4px; }
+  .profiel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .profiel-header h2 { margin: 0; }
+  .grow-kaart {
+    border: 1px solid var(--grijs-rand);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    background: #fafbfd;
+  }
+  .grow-kaart .grow-veld { margin-bottom: 8px; }
+  .grow-kaart label.mini-label { font-size: 12px; color: var(--grijs-tekst); display: block; margin-bottom: 3px; }
+  .grow-kop { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .form-grid .breed { grid-column: 1 / -1; }
+  .nieuw-form {
+    border: 1px dashed var(--grijs-rand);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    background: #f8fafc;
+  }
 </style>
 </head>
 <body>
@@ -363,7 +416,77 @@
     maakTaken(bewoners, "bewoner");
     maakTaken(medewerkers, "medewerker");
 
-    return { locaties, bewoners, medewerkers, taakTypes, taken };
+    /* --- Team: ontwikkeldoelen (GROW), observaties, gespreksverslagen (fictief) --- */
+    function datumMinDagen(dagen) {
+      const d = new Date();
+      d.setDate(d.getDate() - dagen);
+      return isoVan(d);
+    }
+    function datumPlusDagen(dagen) {
+      const d = new Date();
+      d.setDate(d.getDate() + dagen);
+      return isoVan(d);
+    }
+
+    const growData = [
+      { medewerkerId: "med1", titel: "Rustiger reageren bij onrust van bewoners", g: "In stressvolle situaties kalm en sturend overkomen op bewoners en collega's.", r: "Merkt dat ze soms zelf gehaast overkomt bij onrust in de groep, wat spanning kan vergroten.", o: "Ademhalingstechniek toepassen, korte reflectiemomenten inbouwen, meelopen met een rustige collega.", w: "Oefent 4 weken met de techniek en bespreekt voortgang in het volgende gesprek.", status: "open", dagenTot: 70 },
+      { medewerkerId: "med2", titel: "Vlotter en vollediger rapporteren in het dossier", g: "Rapportages op dezelfde dag afronden en duidelijk voor collega's.", r: "Rapportages blijven soms een dag liggen door drukte in de avonddienst.", o: "Vast rapportagemoment inplannen, sjabloon gebruiken voor opbouw van het verslag.", w: "Start volgende week met een vast rapportagemoment aan het eind van de dienst.", status: "open", dagenTot: 40 },
+      { medewerkerId: "med3", titel: "Zelfverzekerder communiceren met familie", g: "Moeilijke gesprekken met familie zelfstandig kunnen voeren.", r: "Vraagt nu vaak een collega om erbij te zijn bij lastige gesprekken.", o: "Rollenspel oefenen, gesprekstechnieken volgen via interne scholing.", w: "Voert het eerstvolgende familiegesprek zelfstandig, met nabespreking.", status: "bereikt", dagenTot: -20 },
+      { medewerkerId: "med4", titel: "Beter plannen tijdens drukke ochtenddienst", g: "Vaste volgorde aanhouden zodat niemand wordt overgeslagen.", r: "Raakt soms het overzicht kwijt bij twee gelijktijdige zorgvragen.", o: "Checklist per bewoner gebruiken, prioriteiten vooraf doornemen met team.", w: "Test de checklist twee weken en evalueert daarna.", status: "open", dagenTot: 25 },
+      { medewerkerId: "med5", titel: "Nieuwe collega's beter inwerken", g: "Nieuwe collega's na twee weken zelfstandig laten werken op de basis.", r: "Inwerkschema wordt nu ad hoc ingevuld, niet altijd volledig.", o: "Vast inwerkschema opstellen, wekelijks kort evaluatiemoment.", w: "Maakt het inwerkschema en gebruikt het bij de volgende nieuwe collega.", status: "open", dagenTot: 90 },
+      { medewerkerId: "med6", titel: "Signalen van pijn beter herkennen", g: "Pijnsignalen bij bewoners met beperkte communicatie eerder opmerken.", r: "Twijfelt soms of onrust duidt op pijn of op iets anders.", o: "Pijnobservatielijst gebruiken, kennis ophalen bij de verpleegkundige.", w: "Gebruikt de observatielijst een maand bij twee bewoners en bespreekt de uitkomst.", status: "open", dagenTot: 15 },
+      { medewerkerId: "med7", titel: "Grenzen aangeven richting collega's", g: "Op een prettige manier aangeven wanneer de planning niet haalbaar is.", r: "Neemt nu vaak extra taken over, ook als de dienst al vol zit.", o: "Kort overleg met coördinator bij twijfel, korte zinnen oefenen om nee te zeggen.", w: "Oefent dit de komende weken en bespreekt een voorbeeld in het volgende gesprek.", status: "open", dagenTot: 55 },
+      { medewerkerId: "med8", titel: "Medicatieveiligheid verder verstevigen", g: "Dubbelcheck bij medicatie foutloos en zonder tijdsdruk uitvoeren.", r: "Voelt soms tijdsdruk waardoor de dubbelcheck te snel gaat.", o: "Vast moment inplannen voor medicatierondes, collega actief betrekken bij check.", w: "Bespreekt met de coördinator hoe de planning iets kan worden aangepast.", status: "bereikt", dagenTot: -45 },
+      { medewerkerId: "med9", titel: "Overdracht korter en duidelijker maken", g: "Overdracht binnen tien minuten helder overdragen aan de volgende dienst.", r: "Overdracht duurt nu vaak langer door zijsprongen in het verhaal.", o: "Vaste opbouw gebruiken (wat/hoe laat/wat moet er gebeuren), oefenen met timer.", w: "Gebruikt de vaste opbouw bij de eerstvolgende vijf overdrachten.", status: "open", dagenTot: 30 },
+      { medewerkerId: "med10", titel: "Meer eigenaarschap tonen in avonddienst", g: "Zelfstandig kleine knelpunten oplossen zonder eerst te overleggen.", r: "Belt nu snel de coördinator, ook bij kleinere praktische vragen.", o: "Eerst zelf een voorstel bedenken, pas daarna overleggen indien nodig.", w: "Probeert dit de komende twee diensten en deelt de ervaring.", status: "open", dagenTot: 60 },
+    ];
+    const ontwikkeldoelen = growData.map((g) => ({
+      id: nieuwId("doel"),
+      medewerkerId: g.medewerkerId,
+      titel: g.titel,
+      g: g.g, r: g.r, o: g.o, w: g.w,
+      status: g.status,
+      streefdatum: datumPlusDagen(g.dagenTot),
+      aangemaaktOp: datumMinDagen(30),
+    }));
+
+    const observatieData = [
+      { medewerkerId: "med1", dagenGeleden: 12, hoor: "Bewoner roept herhaaldelijk om hulp, medewerker antwoordt rustig en komt direct kijken.", zie: "Medewerker knielt bij het bed, houdt oogcontact en spreekt langzaam.", voel: "Sfeer in de kamer wordt merkbaar rustiger.", interpretatie: "Kalme, geruststellende benadering werkt goed bij deze bewoner." },
+      { medewerkerId: "med2", dagenGeleden: 8, hoor: "Medewerker overlegt kort met collega over de volgorde van de ochtendzorg.", zie: "Rapportage wordt pas aan het einde van de dienst ingevoerd.", voel: "Enige haast merkbaar richting het einde van de dienst.", interpretatie: "Rapporteren gebeurt nog te laat in de dienst, kan eerder ingepland worden." },
+      { medewerkerId: "med3", dagenGeleden: 20, hoor: "Medewerker legt familie rustig de situatie van hun moeder uit.", zie: "Medewerker maakt oogcontact met beide familieleden om beurten.", voel: "Familie ontspant zichtbaar tijdens het gesprek.", interpretatie: "Zelfstandig gevoerd familiegesprek verliep goed, ontwikkeldoel lijkt behaald." },
+      { medewerkerId: "med5", dagenGeleden: 5, hoor: "Nieuwe collega stelt een vraag over de dagindeling.", zie: "Medewerker pakt er spontaan een blaadje bij om dingen uit te leggen.", voel: "Nieuwe collega lijkt opgelucht met de duidelijkheid.", interpretatie: "Inwerken gebeurt al goed, een vast schema kan dit nog structureler maken." },
+      { medewerkerId: "med6", dagenGeleden: 15, hoor: "Bewoner maakt geen geluid maar is onrustig in bed.", zie: "Medewerker controleert houding en kijkt naar gezichtsuitdrukking.", voel: "Medewerker twijfelt zichtbaar over de oorzaak van de onrust.", interpretatie: "Extra ondersteuning bij het herkennen van pijnsignalen is nuttig." },
+      { medewerkerId: "med9", dagenGeleden: 10, hoor: "Overdracht bevat veel details over de hele dienst.", zie: "Collega's kijken af en toe op de klok tijdens de overdracht.", voel: "Lichte ongeduld merkbaar bij het luisterende team.", interpretatie: "Een compactere, vaste opbouw zou de overdracht ten goede komen." },
+    ];
+    const observaties = observatieData.map((o) => ({
+      id: nieuwId("obs"),
+      medewerkerId: o.medewerkerId,
+      datum: datumMinDagen(o.dagenGeleden),
+      hoor: o.hoor, zie: o.zie, voel: o.voel, interpretatie: o.interpretatie,
+    }));
+
+    const verslagData = [
+      { medewerkerId: "med1", dagenGeleden: 100, type: "Ontwikkelgesprek", samenvatting: "Besproken hoe ze omgaat met onrustige situaties in de groep. Ze geeft aan soms zelf gehaast te worden.", afspraken: "Ademhalingstechniek uitproberen en volgende keer terugkoppelen." },
+      { medewerkerId: "med2", dagenGeleden: 140, type: "Functioneringsgesprek", samenvatting: "Functioneren over het algemeen goed, aandachtspunt is tijdige rapportage in de avonddienst.", afspraken: "Vast rapportagemoment invoeren aan het eind van elke dienst." },
+      { medewerkerId: "med3", dagenGeleden: 95, type: "Ontwikkelgesprek", samenvatting: "Voortgang op zelfstandig voeren van familiegesprekken besproken; recent gesprek ging goed.", afspraken: "Doel als behaald markeren, nieuw ontwikkelpunt bepalen bij volgend gesprek." },
+      { medewerkerId: "med4", dagenGeleden: 160, type: "Functioneringsgesprek", samenvatting: "Prettige collega, wil graag meer overzicht houden tijdens drukke ochtenddiensten.", afspraken: "Checklist per bewoner opstellen en twee weken uitproberen." },
+      { medewerkerId: "med5", dagenGeleden: 70, type: "Ontwikkelgesprek", samenvatting: "Begeleidt nieuwe collega's al met veel geduld, wil dit structureler aanpakken.", afspraken: "Inwerkschema op papier zetten voor gebruik bij de volgende nieuwe medewerker." },
+      { medewerkerId: "med6", dagenGeleden: 120, type: "Functioneringsgesprek", samenvatting: "Zorgvuldige medewerker, twijfelt soms over signalen bij bewoners met beperkte communicatie.", afspraken: "Pijnobservatielijst introduceren en samen met verpleegkundige doornemen." },
+      { medewerkerId: "med7", dagenGeleden: 200, type: "Ontwikkelgesprek", samenvatting: "Neemt snel extra taken over, ook als het eigenlijk niet past in de planning.", afspraken: "Oefenen met kort overleg vooraf en grenzen aangeven." },
+      { medewerkerId: "med8", dagenGeleden: 180, type: "Functioneringsgesprek", samenvatting: "Werkt secuur, medicatieveiligheid was al goed en is verder verstevigd.", afspraken: "Doel gemarkeerd als behaald; vast moment voor medicatierondes blijft aandachtspunt." },
+      { medewerkerId: "med9", dagenGeleden: 60, type: "Ontwikkelgesprek", samenvatting: "Overdracht bevat veel waardevolle informatie maar duurt vaak te lang.", afspraken: "Vaste opbouw en timer proberen bij de eerstvolgende overdrachten." },
+      { medewerkerId: "med10", dagenGeleden: 150, type: "Functioneringsgesprek", samenvatting: "Werkt betrouwbaar, belt bij twijfel snel de coördinator, ook voor kleine vragen.", afspraken: "Eerst zelf een voorstel bedenken en pas daarna overleggen indien nodig." },
+    ];
+    const gespreksverslagen = verslagData.map((v) => ({
+      id: nieuwId("verslag"),
+      medewerkerId: v.medewerkerId,
+      datum: datumMinDagen(v.dagenGeleden),
+      type: v.type,
+      samenvatting: v.samenvatting,
+      afspraken: v.afspraken,
+    }));
+
+    return { locaties, bewoners, medewerkers, taakTypes, taken, ontwikkeldoelen, observaties, gespreksverslagen };
   }
 
   /* ---------- Status & opslag ---------- */
@@ -372,11 +495,18 @@
   function laadState() {
     try {
       const ruw = localStorage.getItem(OPSLAGSLEUTEL);
-      if (ruw) return JSON.parse(ruw);
+      if (ruw) return migreer(JSON.parse(ruw));
     } catch (e) { /* corrupte data, opnieuw seeden */ }
     const nieuw = bouwVoorbeeldData();
     localStorage.setItem(OPSLAGSLEUTEL, JSON.stringify(nieuw));
     return nieuw;
+  }
+  function migreer(data) {
+    // Vult ontbrekende collecties aan voor data die met een eerdere versie is opgeslagen.
+    if (!data.ontwikkeldoelen) data.ontwikkeldoelen = [];
+    if (!data.observaties) data.observaties = [];
+    if (!data.gespreksverslagen) data.gespreksverslagen = [];
+    return data;
   }
   function bewaarState() {
     localStorage.setItem(OPSLAGSLEUTEL, JSON.stringify(state));
@@ -562,16 +692,105 @@
     reader.readAsText(bestand);
   }
 
+  /* ---------- Team: ontwikkeldoelen, observaties, gespreksverslagen ---------- */
+  function voegOntwikkeldoelToe(medewerkerId, veld) {
+    if (!veld.titel || !veld.titel.trim()) { alert("Geef het ontwikkeldoel een titel."); return; }
+    state.ontwikkeldoelen.push({
+      id: nieuwId("doel"), medewerkerId, titel: veld.titel.trim(),
+      g: veld.g || "", r: veld.r || "", o: veld.o || "", w: veld.w || "",
+      status: "open", streefdatum: veld.streefdatum || vandaag(), aangemaaktOp: vandaag(),
+    });
+    bewaarState();
+    toon("Ontwikkeldoel toegevoegd.");
+    render();
+  }
+  function wijzigOntwikkeldoel(id, veld, waarde) {
+    const doel = state.ontwikkeldoelen.find((d) => d.id === id);
+    if (!doel) return;
+    doel[veld] = waarde;
+    bewaarState();
+  }
+  function verwijderOntwikkeldoel(id) {
+    if (!confirm("Dit ontwikkeldoel verwijderen?")) return;
+    state.ontwikkeldoelen = state.ontwikkeldoelen.filter((d) => d.id !== id);
+    bewaarState();
+    render();
+  }
+
+  function voegObservatieToe(medewerkerId, veld) {
+    if (!veld.hoor && !veld.zie && !veld.voel && !veld.interpretatie) { alert("Vul minimaal één van de velden hoor/zie/voel/interpreteer in."); return; }
+    state.observaties.push({
+      id: nieuwId("obs"), medewerkerId, datum: veld.datum || vandaag(),
+      hoor: veld.hoor || "", zie: veld.zie || "", voel: veld.voel || "", interpretatie: veld.interpretatie || "",
+    });
+    bewaarState();
+    toon("Observatie toegevoegd.");
+    render();
+  }
+  function wijzigObservatie(id, veld, waarde) {
+    const obs = state.observaties.find((o) => o.id === id);
+    if (!obs) return;
+    obs[veld] = waarde;
+    bewaarState();
+  }
+  function verwijderObservatie(id) {
+    if (!confirm("Deze observatie verwijderen?")) return;
+    state.observaties = state.observaties.filter((o) => o.id !== id);
+    bewaarState();
+    render();
+  }
+
+  function voegVerslagToe(medewerkerId, veld) {
+    if (!veld.samenvatting || !veld.samenvatting.trim()) { alert("Geef een korte samenvatting van het gesprek."); return; }
+    state.gespreksverslagen.push({
+      id: nieuwId("verslag"), medewerkerId, datum: veld.datum || vandaag(), type: veld.type || "Ad-hoc gesprek",
+      samenvatting: veld.samenvatting.trim(), afspraken: veld.afspraken || "",
+    });
+    bewaarState();
+    toon("Gespreksverslag toegevoegd.");
+    render();
+  }
+  function wijzigVerslag(id, veld, waarde) {
+    const v = state.gespreksverslagen.find((x) => x.id === id);
+    if (!v) return;
+    v[veld] = waarde;
+    bewaarState();
+  }
+  function verwijderVerslag(id) {
+    if (!confirm("Dit gespreksverslag verwijderen?")) return;
+    state.gespreksverslagen = state.gespreksverslagen.filter((x) => x.id !== id);
+    bewaarState();
+    render();
+  }
+
+  function kiesMedewerker(id) {
+    teamGekozenMedewerker = id;
+    teamToonNieuwDoel = false;
+    teamToonNieuweObservatie = false;
+    teamToonNieuwVerslag = false;
+    render();
+  }
+  function terugNaarTeamoverzicht() {
+    teamGekozenMedewerker = null;
+    render();
+  }
+
   /* ---------- Weergave ---------- */
   let huidigTab = "jaarplanning";
   let filterLocatie = "alle";
   let filterDoelgroep = "alle";
   let filterStatus = "alle";
 
+  let teamFilterLocatie = "alle";
+  let teamGekozenMedewerker = null;
+  let teamToonNieuwDoel = false;
+  let teamToonNieuweObservatie = false;
+  let teamToonNieuwVerslag = false;
+
   function renderNav() {
     const tabs = [
       { id: "jaarplanning", label: "Jaarplanning", actief: true },
-      { id: "team", label: "Team", actief: false },
+      { id: "team", label: "Team", actief: true },
       { id: "actielijst", label: "Actielijst", actief: false },
       { id: "dashboard", label: "Dashboard", actief: false },
     ];
@@ -617,9 +836,10 @@
 
     return `
       <div class="melding">
-        Dit is het eerste onderdeel van de Zorgplanner: de <strong>jaarplanning</strong>. Terugkerende taken (dossierchecks,
-        evaluaties, ontwikkel- en functioneringsgesprekken) worden hier automatisch opnieuw ingepland zodra je ze
-        afrondt. Team, Actielijst en Dashboard volgen in latere stappen.
+        Dit is de <strong>jaarplanning</strong>. Terugkerende taken (dossierchecks, evaluaties, ontwikkel- en
+        functioneringsgesprekken) worden hier automatisch opnieuw ingepland zodra je ze afrondt. Bekijk het tabblad
+        <strong>Team</strong> voor ontwikkeldoelen, observaties en gespreksverslagen per medewerker. Actielijst en
+        Dashboard volgen in latere stappen.
       </div>
 
       <div class="samenvatting">
@@ -746,15 +966,219 @@
     return `<div class="placeholder-tab"><h2>${naam}</h2><p>Dit onderdeel wordt in een volgende stap gebouwd, voortbouwend op dezelfde bewoners-, medewerkers- en locatiegegevens als de jaarplanning.</p></div>`;
   }
 
+  function renderTeam() {
+    return teamGekozenMedewerker ? renderMedewerkerProfiel(teamGekozenMedewerker) : renderTeamOverzicht();
+  }
+
+  function renderTeamOverzicht() {
+    let personen = state.medewerkers;
+    if (teamFilterLocatie !== "alle") personen = personen.filter((m) => m.locatieId === teamFilterLocatie);
+    personen = personen.slice().sort((a, b) => a.naam.localeCompare(b.naam));
+
+    const locatieOpties = state.locaties.map((l) => `<option value="${l.id}" ${teamFilterLocatie === l.id ? "selected" : ""}>${l.naam}</option>`).join("");
+
+    const kaarten = personen.map((m) => {
+      const openDoelen = state.ontwikkeldoelen.filter((d) => d.medewerkerId === m.id && d.status === "open").length;
+      const laatsteVerslag = state.gespreksverslagen.filter((v) => v.medewerkerId === m.id).sort((a, b) => b.datum.localeCompare(a.datum))[0];
+      return `
+        <div class="team-kaart">
+          <h3>${m.naam}</h3>
+          <div class="locatie">${locatieNaam(m.locatieId)}</div>
+          <div class="metriek">🎯 ${openDoelen} open ontwikkeldoel${openDoelen === 1 ? "" : "en"}</div>
+          <div class="metriek">💬 Laatste gesprek: ${laatsteVerslag ? naarNL(laatsteVerslag.datum) : "nog geen"}</div>
+          <div class="knopbalk"><button class="actie" data-kies-medewerker="${m.id}">Bekijk profiel</button></div>
+        </div>`;
+    }).join("");
+
+    return `
+      <div class="melding">
+        Overzicht van je team. Per medewerker houd je hier ontwikkeldoelen (GROW-methode), observaties
+        (hoor/zie/voel/interpreteer) en gespreksverslagen bij.
+      </div>
+      <div class="kaart">
+        <div class="filters">
+          <label>Locatie
+            <select id="team-f-locatie">
+              <option value="alle" ${teamFilterLocatie === "alle" ? "selected" : ""}>Alle locaties</option>
+              ${locatieOpties}
+            </select>
+          </label>
+        </div>
+        <div class="team-grid">${kaarten || `<p class="klein-label">Geen medewerkers gevonden met deze filter.</p>`}</div>
+      </div>
+    `;
+  }
+
+  function renderMedewerkerProfiel(id) {
+    const m = state.medewerkers.find((x) => x.id === id);
+    if (!m) { teamGekozenMedewerker = null; return renderTeamOverzicht(); }
+
+    const jaarplanningTaken = state.taken
+      .filter((t) => t.persoonType === "medewerker" && t.persoonId === id)
+      .sort((a, b) => a.volgendeDatum.localeCompare(b.volgendeDatum));
+
+    const doelen = state.ontwikkeldoelen.filter((d) => d.medewerkerId === id).sort((a, b) => a.streefdatum.localeCompare(b.streefdatum));
+    const observaties = state.observaties.filter((o) => o.medewerkerId === id).sort((a, b) => b.datum.localeCompare(a.datum));
+    const verslagen = state.gespreksverslagen.filter((v) => v.medewerkerId === id).sort((a, b) => b.datum.localeCompare(a.datum));
+
+    const jaarplanningRijen = jaarplanningTaken.map((t) => {
+      const tt = taakTypeVan(t.taakTypeId);
+      const status = statusVan(t);
+      return `
+        <tr>
+          <td>${tt ? tt.naam : "(verwijderd)"}</td>
+          <td>${naarNL(t.volgendeDatum)}</td>
+          <td><span class="badge ${status}">${statusLabel[status]}</span></td>
+          <td><button class="actie" data-actie="afronden" data-id="${t.id}">Markeer als afgerond</button></td>
+        </tr>`;
+    }).join("");
+
+    const doelKaarten = doelen.map((d) => `
+      <div class="grow-kaart">
+        <div class="grow-kop">
+          <input type="text" style="font-weight:600;flex:1;min-width:200px;" data-doel="${d.id}" data-veld="titel" value="${d.titel}">
+          <select data-doel="${d.id}" data-veld="status">
+            <option value="open" ${d.status === "open" ? "selected" : ""}>Open</option>
+            <option value="bereikt" ${d.status === "bereikt" ? "selected" : ""}>Bereikt</option>
+            <option value="vervallen" ${d.status === "vervallen" ? "selected" : ""}>Vervallen</option>
+          </select>
+          <button class="gevaar" data-verwijder-doel="${d.id}">Verwijderen</button>
+        </div>
+        <div class="form-grid">
+          <div class="grow-veld"><label class="mini-label">Goal — wat wil je bereiken?</label><textarea rows="2" data-doel="${d.id}" data-veld="g">${d.g}</textarea></div>
+          <div class="grow-veld"><label class="mini-label">Reality — wat is de huidige situatie?</label><textarea rows="2" data-doel="${d.id}" data-veld="r">${d.r}</textarea></div>
+          <div class="grow-veld"><label class="mini-label">Options — welke opties zijn er?</label><textarea rows="2" data-doel="${d.id}" data-veld="o">${d.o}</textarea></div>
+          <div class="grow-veld"><label class="mini-label">Will — welke actie en wanneer?</label><textarea rows="2" data-doel="${d.id}" data-veld="w">${d.w}</textarea></div>
+        </div>
+        <label class="mini-label">Streefdatum
+          <input type="date" data-doel="${d.id}" data-veld="streefdatum" value="${d.streefdatum}">
+        </label>
+      </div>`).join("") || `<p class="klein-label">Nog geen ontwikkeldoelen geregistreerd.</p>`;
+
+    const observatieKaarten = observaties.map((o) => `
+      <div class="grow-kaart">
+        <div class="grow-kop">
+          <input type="date" data-obs="${o.id}" data-veld="datum" value="${o.datum}">
+          <button class="gevaar" data-verwijder-obs="${o.id}">Verwijderen</button>
+        </div>
+        <div class="form-grid">
+          <div class="grow-veld"><label class="mini-label">Hoor</label><textarea rows="2" data-obs="${o.id}" data-veld="hoor">${o.hoor}</textarea></div>
+          <div class="grow-veld"><label class="mini-label">Zie</label><textarea rows="2" data-obs="${o.id}" data-veld="zie">${o.zie}</textarea></div>
+          <div class="grow-veld"><label class="mini-label">Voel</label><textarea rows="2" data-obs="${o.id}" data-veld="voel">${o.voel}</textarea></div>
+          <div class="grow-veld"><label class="mini-label">Interpreteer</label><textarea rows="2" data-obs="${o.id}" data-veld="interpretatie">${o.interpretatie}</textarea></div>
+        </div>
+      </div>`).join("") || `<p class="klein-label">Nog geen observaties geregistreerd.</p>`;
+
+    const verslagKaarten = verslagen.map((v) => `
+      <div class="grow-kaart">
+        <div class="grow-kop">
+          <input type="date" data-verslag="${v.id}" data-veld="datum" value="${v.datum}">
+          <select data-verslag="${v.id}" data-veld="type">
+            <option value="Ontwikkelgesprek" ${v.type === "Ontwikkelgesprek" ? "selected" : ""}>Ontwikkelgesprek</option>
+            <option value="Functioneringsgesprek" ${v.type === "Functioneringsgesprek" ? "selected" : ""}>Functioneringsgesprek</option>
+            <option value="Ad-hoc gesprek" ${v.type === "Ad-hoc gesprek" ? "selected" : ""}>Ad-hoc gesprek</option>
+          </select>
+          <button class="gevaar" data-verwijder-verslag="${v.id}">Verwijderen</button>
+        </div>
+        <div class="grow-veld"><label class="mini-label">Samenvatting</label><textarea rows="2" data-verslag="${v.id}" data-veld="samenvatting">${v.samenvatting}</textarea></div>
+        <div class="grow-veld"><label class="mini-label">Afspraken</label><textarea rows="2" data-verslag="${v.id}" data-veld="afspraken">${v.afspraken}</textarea></div>
+      </div>`).join("") || `<p class="klein-label">Nog geen gespreksverslagen geregistreerd.</p>`;
+
+    return `
+      <button class="subtiel" id="btn-terug-team">← Terug naar teamoverzicht</button>
+
+      <div class="kaart" style="margin-top:16px;">
+        <div class="profiel-header">
+          <h2>${m.naam}</h2>
+          <select data-persoon-locatie="medewerker:${m.id}">
+            ${state.locaties.map((l) => `<option value="${l.id}" ${l.id === m.locatieId ? "selected" : ""}>${l.naam}</option>`).join("")}
+          </select>
+        </div>
+
+        <h3 style="font-size:14px;margin-top:16px;">Jaarplanning voor deze medewerker</h3>
+        <table>
+          <thead><tr><th>Taak</th><th>Gepland op</th><th>Status</th><th>Actie</th></tr></thead>
+          <tbody>${jaarplanningRijen || `<tr><td colspan="4" style="text-align:center;color:var(--grijs-tekst);">Geen geplande taken.</td></tr>`}</tbody>
+        </table>
+      </div>
+
+      <div class="kaart">
+        <h2>Ontwikkeldoelen (GROW)</h2>
+        ${doelKaarten}
+        ${teamToonNieuwDoel ? `
+          <div class="nieuw-form">
+            <div class="grow-veld"><label class="mini-label">Titel</label><input type="text" id="nieuw-doel-titel" style="width:100%"></div>
+            <div class="form-grid">
+              <div class="grow-veld"><label class="mini-label">Goal</label><textarea rows="2" id="nieuw-doel-g"></textarea></div>
+              <div class="grow-veld"><label class="mini-label">Reality</label><textarea rows="2" id="nieuw-doel-r"></textarea></div>
+              <div class="grow-veld"><label class="mini-label">Options</label><textarea rows="2" id="nieuw-doel-o"></textarea></div>
+              <div class="grow-veld"><label class="mini-label">Will</label><textarea rows="2" id="nieuw-doel-w"></textarea></div>
+            </div>
+            <label class="mini-label">Streefdatum <input type="date" id="nieuw-doel-streefdatum" value="${vandaag()}"></label>
+            <div class="knopbalk">
+              <button class="actie" id="btn-opslaan-doel">Ontwikkeldoel toevoegen</button>
+              <button class="subtiel" id="btn-annuleer-doel">Annuleren</button>
+            </div>
+          </div>` : `<div class="knopbalk"><button class="subtiel" id="btn-nieuw-doel">+ Nieuw ontwikkeldoel</button></div>`}
+      </div>
+
+      <div class="kaart">
+        <h2>Observaties (hoor / zie / voel / interpreteer)</h2>
+        ${observatieKaarten}
+        ${teamToonNieuweObservatie ? `
+          <div class="nieuw-form">
+            <label class="mini-label">Datum <input type="date" id="nieuw-obs-datum" value="${vandaag()}"></label>
+            <div class="form-grid">
+              <div class="grow-veld"><label class="mini-label">Hoor</label><textarea rows="2" id="nieuw-obs-hoor"></textarea></div>
+              <div class="grow-veld"><label class="mini-label">Zie</label><textarea rows="2" id="nieuw-obs-zie"></textarea></div>
+              <div class="grow-veld"><label class="mini-label">Voel</label><textarea rows="2" id="nieuw-obs-voel"></textarea></div>
+              <div class="grow-veld"><label class="mini-label">Interpreteer</label><textarea rows="2" id="nieuw-obs-interpretatie"></textarea></div>
+            </div>
+            <div class="knopbalk">
+              <button class="actie" id="btn-opslaan-obs">Observatie toevoegen</button>
+              <button class="subtiel" id="btn-annuleer-obs">Annuleren</button>
+            </div>
+          </div>` : `<div class="knopbalk"><button class="subtiel" id="btn-nieuwe-obs">+ Nieuwe observatie</button></div>`}
+      </div>
+
+      <div class="kaart">
+        <h2>Gespreksverslagen</h2>
+        ${verslagKaarten}
+        ${teamToonNieuwVerslag ? `
+          <div class="nieuw-form">
+            <div class="form-grid">
+              <label class="mini-label">Datum <input type="date" id="nieuw-verslag-datum" value="${vandaag()}"></label>
+              <label class="mini-label">Type
+                <select id="nieuw-verslag-type">
+                  <option value="Ontwikkelgesprek">Ontwikkelgesprek</option>
+                  <option value="Functioneringsgesprek">Functioneringsgesprek</option>
+                  <option value="Ad-hoc gesprek">Ad-hoc gesprek</option>
+                </select>
+              </label>
+            </div>
+            <div class="grow-veld"><label class="mini-label">Samenvatting</label><textarea rows="2" id="nieuw-verslag-samenvatting"></textarea></div>
+            <div class="grow-veld"><label class="mini-label">Afspraken</label><textarea rows="2" id="nieuw-verslag-afspraken"></textarea></div>
+            <div class="knopbalk">
+              <button class="actie" id="btn-opslaan-verslag">Verslag toevoegen</button>
+              <button class="subtiel" id="btn-annuleer-verslag">Annuleren</button>
+            </div>
+          </div>` : `<div class="knopbalk"><button class="subtiel" id="btn-nieuw-verslag">+ Nieuw gespreksverslag</button></div>`}
+      </div>
+    `;
+  }
+
   function render() {
     renderNav();
     const main = document.getElementById("main");
     if (huidigTab === "jaarplanning") {
       main.innerHTML = renderJaarplanning();
       koppelJaarplanningEvents();
+    } else if (huidigTab === "team") {
+      main.innerHTML = renderTeam();
+      koppelTeamEvents();
     } else {
       main.innerHTML = renderPlaceholder(
-        huidigTab === "team" ? "Team" : huidigTab === "actielijst" ? "Actielijst" : "Dashboard"
+        huidigTab === "actielijst" ? "Actielijst" : "Dashboard"
       );
     }
   }
@@ -790,6 +1214,59 @@
     bij("btn-export", "click", exporteer);
     bij("btn-reset", "click", resetVoorbeelddata);
     bij("btn-import", "change", (e) => { if (e.target.files[0]) importeer(e.target.files[0]); });
+  }
+
+  function koppelTeamEvents() {
+    const bij = (id, event, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(event, fn); };
+    const waarde = (id) => { const el = document.getElementById(id); return el ? el.value : ""; };
+
+    bij("team-f-locatie", "change", (e) => { teamFilterLocatie = e.target.value; render(); });
+    document.querySelectorAll("[data-kies-medewerker]").forEach((b) => b.addEventListener("click", () => kiesMedewerker(b.dataset.kiesMedewerker)));
+    bij("btn-terug-team", "click", terugNaarTeamoverzicht);
+
+    if (!teamGekozenMedewerker) return;
+
+    document.querySelectorAll("[data-persoon-locatie]").forEach((sel) => sel.addEventListener("change", () => {
+      const [type, id] = sel.dataset.persoonLocatie.split(":");
+      wijzigPersoonLocatie(type, id, sel.value);
+    }));
+    document.querySelectorAll("[data-actie='afronden']").forEach((b) => b.addEventListener("click", () => markeerAfgerond(b.dataset.id)));
+
+    document.querySelectorAll("[data-doel]").forEach((el) => el.addEventListener("change", () => wijzigOntwikkeldoel(el.dataset.doel, el.dataset.veld, el.value)));
+    document.querySelectorAll("[data-verwijder-doel]").forEach((b) => b.addEventListener("click", () => verwijderOntwikkeldoel(b.dataset.verwijderDoel)));
+    bij("btn-nieuw-doel", "click", () => { teamToonNieuwDoel = true; render(); });
+    bij("btn-annuleer-doel", "click", () => { teamToonNieuwDoel = false; render(); });
+    bij("btn-opslaan-doel", "click", () => {
+      voegOntwikkeldoelToe(teamGekozenMedewerker, {
+        titel: waarde("nieuw-doel-titel"), g: waarde("nieuw-doel-g"), r: waarde("nieuw-doel-r"),
+        o: waarde("nieuw-doel-o"), w: waarde("nieuw-doel-w"), streefdatum: waarde("nieuw-doel-streefdatum"),
+      });
+      teamToonNieuwDoel = false;
+    });
+
+    document.querySelectorAll("[data-obs]").forEach((el) => el.addEventListener("change", () => wijzigObservatie(el.dataset.obs, el.dataset.veld, el.value)));
+    document.querySelectorAll("[data-verwijder-obs]").forEach((b) => b.addEventListener("click", () => verwijderObservatie(b.dataset.verwijderObs)));
+    bij("btn-nieuwe-obs", "click", () => { teamToonNieuweObservatie = true; render(); });
+    bij("btn-annuleer-obs", "click", () => { teamToonNieuweObservatie = false; render(); });
+    bij("btn-opslaan-obs", "click", () => {
+      voegObservatieToe(teamGekozenMedewerker, {
+        datum: waarde("nieuw-obs-datum"), hoor: waarde("nieuw-obs-hoor"), zie: waarde("nieuw-obs-zie"),
+        voel: waarde("nieuw-obs-voel"), interpretatie: waarde("nieuw-obs-interpretatie"),
+      });
+      teamToonNieuweObservatie = false;
+    });
+
+    document.querySelectorAll("[data-verslag]").forEach((el) => el.addEventListener("change", () => wijzigVerslag(el.dataset.verslag, el.dataset.veld, el.value)));
+    document.querySelectorAll("[data-verwijder-verslag]").forEach((b) => b.addEventListener("click", () => verwijderVerslag(b.dataset.verwijderVerslag)));
+    bij("btn-nieuw-verslag", "click", () => { teamToonNieuwVerslag = true; render(); });
+    bij("btn-annuleer-verslag", "click", () => { teamToonNieuwVerslag = false; render(); });
+    bij("btn-opslaan-verslag", "click", () => {
+      voegVerslagToe(teamGekozenMedewerker, {
+        datum: waarde("nieuw-verslag-datum"), type: waarde("nieuw-verslag-type"),
+        samenvatting: waarde("nieuw-verslag-samenvatting"), afspraken: waarde("nieuw-verslag-afspraken"),
+      });
+      teamToonNieuwVerslag = false;
+    });
   }
 
   render();
