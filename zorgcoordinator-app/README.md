@@ -74,7 +74,14 @@ Het dashboard is het **startscherm** — dit zie je als eerste wanneer je de app
     vervallen) en een streefdatum. Velden zijn direct te bewerken; wijzigingen worden
     automatisch opgeslagen.
   - **Observaties (hoor/zie/voel/interpreteer)** — vastleggen wat je hebt waargenomen,
-    los van je interpretatie.
+    los van je interpretatie. Bij een nieuwe observatie kun je ook **dicteren**: spreek je
+    observatie in gewone taal in, en klik op **Analyseer en verdeel** om de tekst automatisch
+    (met eenvoudige zoekwoorden, lokaal) te laten opsplitsen over de vier velden. Controleer
+    en corrigeer het resultaat altijd — het is een hulpmiddel, geen vervanging van je eigen
+    beoordeling. Dicteren werkt alleen in Chrome of Edge, vereist microfoontoegang en is de
+    **enige plek in de app** waar geluid voor verwerking naar een externe dienst (meestal
+    Google) gaat — de rest van de app blijft volledig lokaal. Zonder ondersteuning of
+    zonder microfoon typ je de tekst gewoon zelf in hetzelfde veld.
   - **Gespreksverslagen** — datum, type gesprek (ontwikkelgesprek, functioneringsgesprek of
     ad-hoc), samenvatting en gemaakte afspraken.
 - Bovenaan elk profiel zie je ook de openstaande jaarplanning-taken (ontwikkel-/

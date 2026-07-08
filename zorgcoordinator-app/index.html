@@ -292,6 +292,24 @@
     margin-bottom: 14px;
     background: #f8fafc;
   }
+  .dicteer-blok {
+    border: 1px solid var(--grijs-rand);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    background: var(--wit);
+  }
+  button.opname-actief {
+    background: var(--rood) !important;
+    color: var(--wit) !important;
+    border-color: var(--rood) !important;
+    animation: dicteer-puls 1.4s ease-in-out infinite;
+  }
+  @keyframes dicteer-puls {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .dicteer-note { font-size: 12px; color: var(--grijs-tekst); margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -720,6 +738,107 @@
     reader.readAsText(bestand);
   }
 
+  /* ---------- Dicteren en automatische analyse (observatiedagboek) ---------- */
+  function ondersteuntDicteren() {
+    return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+  }
+
+  let actieveHerkenning = null;
+
+  function startDicteren(textareaId, knopId) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      alert("Dicteren wordt niet ondersteund in deze browser. Gebruik Chrome of Edge, of typ de tekst zelf.");
+      return;
+    }
+    const herkenning = new SR();
+    herkenning.lang = "nl-NL";
+    herkenning.continuous = true;
+    herkenning.interimResults = true;
+
+    const textarea = document.getElementById(textareaId);
+    let finaleTekst = textarea ? textarea.value : "";
+
+    herkenning.onresult = (event) => {
+      let interim = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const stuk = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finaleTekst += (finaleTekst && !finaleTekst.endsWith(" ") ? " " : "") + stuk.trim();
+        } else {
+          interim += stuk;
+        }
+      }
+      const el = document.getElementById(textareaId);
+      if (el) el.value = finaleTekst + (interim ? " " + interim : "");
+    };
+    herkenning.onerror = (event) => {
+      toon("Dicteren gestopt: " + (event.error === "not-allowed" ? "microfoontoegang geweigerd." : event.error));
+      herkenningKnopReset(knopId);
+      actieveHerkenning = null;
+    };
+    herkenning.onend = () => {
+      herkenningKnopReset(knopId);
+      actieveHerkenning = null;
+    };
+
+    herkenning.start();
+    actieveHerkenning = herkenning;
+    const knop = document.getElementById(knopId);
+    if (knop) { knop.textContent = "⏹ Stop dicteren"; knop.classList.add("opname-actief"); }
+  }
+
+  function stopDicteren() {
+    if (actieveHerkenning) actieveHerkenning.stop();
+  }
+
+  function herkenningKnopReset(knopId) {
+    const knop = document.getElementById(knopId);
+    if (knop) { knop.textContent = "🎤 Start dicteren"; knop.classList.remove("opname-actief"); }
+  }
+
+  function analyseerObservatieTekst(tekst) {
+    const zinnen = tekst.split(/(?<=[.!?])\s+|\n+/).map((z) => z.trim()).filter(Boolean);
+    const trefwoorden = {
+      interpretatie: [/waarschijnlijk/i, /lijkt (erop )?dat/i, /denk(t)? dat/i, /duidt (op|erop)/i, /conclu(deer|sie)/i, /mogelijk/i, /vermoedelijk/i, /verklaart/i, /komt (waarschijnlijk )?door/i],
+      hoor: [/\bhoor(t|de)?\b/i, /\bzeg(t|de)?\b/i, /\broep(t|en)?\b|riep/i, /vertel(t|de)?\b/i, /\bstem\b/i, /geluid/i, /\bpraat(te)?\b/i, /schreeuw/i, /fluister/i],
+      zie: [/\bzie(t)?\b|zag/i, /\bkijk(t)?\b|keek/i, /gezicht/i, /houding/i, /\bloopt\b|liep/i, /\bstaat\b|stond/i, /\bligt\b|lag/i, /beweegt|bewoog/i, /oogcontact/i],
+      voel: [/\bvoel(t|de)?\b/i, /sfeer/i, /gevoel/i, /spanning/i, /onrust/i, /rustig/i, /ontspann/i, /\bblij\b/i, /verdrietig/i, /geïrriteerd|irritatie/i],
+    };
+    const resultaat = { hoor: [], zie: [], voel: [], interpretatie: [] };
+    zinnen.forEach((zin) => {
+      if (trefwoorden.interpretatie.some((re) => re.test(zin))) resultaat.interpretatie.push(zin);
+      else if (trefwoorden.hoor.some((re) => re.test(zin))) resultaat.hoor.push(zin);
+      else if (trefwoorden.zie.some((re) => re.test(zin))) resultaat.zie.push(zin);
+      else if (trefwoorden.voel.some((re) => re.test(zin))) resultaat.voel.push(zin);
+      else resultaat.zie.push(zin);
+    });
+    return {
+      hoor: resultaat.hoor.join(" "),
+      zie: resultaat.zie.join(" "),
+      voel: resultaat.voel.join(" "),
+      interpretatie: resultaat.interpretatie.join(" "),
+    };
+  }
+
+  function vulOfVoegToe(veldId, tekst) {
+    if (!tekst) return;
+    const el = document.getElementById(veldId);
+    if (!el) return;
+    el.value = el.value && el.value.trim() ? el.value.trim() + " " + tekst : tekst;
+  }
+
+  function analyseerEnVerdeel(vrijeTekstId, doelen) {
+    const tekst = (document.getElementById(vrijeTekstId) || {}).value || "";
+    if (!tekst.trim()) { alert("Dicteer of typ eerst tekst in het vrije-tekstveld hierboven."); return; }
+    const resultaat = analyseerObservatieTekst(tekst);
+    vulOfVoegToe(doelen.hoor, resultaat.hoor);
+    vulOfVoegToe(doelen.zie, resultaat.zie);
+    vulOfVoegToe(doelen.voel, resultaat.voel);
+    vulOfVoegToe(doelen.interpretatie, resultaat.interpretatie);
+    toon("Tekst automatisch verdeeld over hoor/zie/voel/interpreteer — controleer en pas aan waar nodig.");
+  }
+
   /* ---------- Team: ontwikkeldoelen, observaties, gespreksverslagen ---------- */
   function voegOntwikkeldoelToe(medewerkerId, veld) {
     if (!veld.titel || !veld.titel.trim()) { alert("Geef het ontwikkeldoel een titel."); return; }
@@ -839,6 +958,7 @@
   }
 
   function kiesMedewerker(id) {
+    stopDicteren();
     teamGekozenMedewerker = id;
     teamToonNieuwDoel = false;
     teamToonNieuweObservatie = false;
@@ -846,6 +966,7 @@
     render();
   }
   function terugNaarTeamoverzicht() {
+    stopDicteren();
     teamGekozenMedewerker = null;
     render();
   }
@@ -1477,6 +1598,21 @@
         ${teamToonNieuweObservatie ? `
           <div class="nieuw-form">
             <label class="mini-label">Datum <input type="date" id="nieuw-obs-datum" value="${vandaag()}"></label>
+
+            <div class="dicteer-blok">
+              <label class="mini-label">Observatiedagboek — dicteer of typ je observatie in gewone taal</label>
+              <textarea rows="3" id="nieuw-obs-vrije-tekst" placeholder="Bijvoorbeeld: Ik hoorde de bewoner roepen. Ik zag dat de medewerker rustig bleef en ging zitten. Het voelde gespannen in de kamer. Waarschijnlijk had de bewoner pijn."></textarea>
+              <div class="knopbalk">
+                <button class="subtiel" id="btn-dicteer-obs" ${ondersteuntDicteren() ? "" : "disabled"}>🎤 Start dicteren</button>
+                <button class="subtiel" id="btn-analyseer-obs">Analyseer en verdeel over hoor/zie/voel/interpreteer</button>
+              </div>
+              <p class="dicteer-note">
+                ${ondersteuntDicteren()
+                  ? "Dicteren gebruikt de spraakherkenning van je browser — dit is de enige plek in de app waar geluid naar een externe dienst (meestal Google) wordt gestuurd voor verwerking, en vereist internet. De rest van de app blijft volledig lokaal. De verdeling over hoor/zie/voel/interpreteer gebeurt wél lokaal met eenvoudige zoekwoorden — controleer en corrigeer het resultaat altijd."
+                  : "Dicteren wordt niet ondersteund in deze browser (gebruik Chrome of Edge). Je kunt de tekst hierboven ook gewoon typen en op \"Analyseer\" klikken."}
+              </p>
+            </div>
+
             <div class="form-grid">
               <div class="grow-veld"><label class="mini-label">Hoor</label><textarea rows="2" id="nieuw-obs-hoor"></textarea></div>
               <div class="grow-veld"><label class="mini-label">Zie</label><textarea rows="2" id="nieuw-obs-zie"></textarea></div>
@@ -1598,13 +1734,23 @@
     document.querySelectorAll("[data-obs]").forEach((el) => el.addEventListener("change", () => wijzigObservatie(el.dataset.obs, el.dataset.veld, el.value)));
     document.querySelectorAll("[data-verwijder-obs]").forEach((b) => b.addEventListener("click", () => verwijderObservatie(b.dataset.verwijderObs)));
     bij("btn-nieuwe-obs", "click", () => { teamToonNieuweObservatie = true; render(); });
-    bij("btn-annuleer-obs", "click", () => { teamToonNieuweObservatie = false; render(); });
+    bij("btn-annuleer-obs", "click", () => { stopDicteren(); teamToonNieuweObservatie = false; render(); });
     bij("btn-opslaan-obs", "click", () => {
+      stopDicteren();
       voegObservatieToe(teamGekozenMedewerker, {
         datum: waarde("nieuw-obs-datum"), hoor: waarde("nieuw-obs-hoor"), zie: waarde("nieuw-obs-zie"),
         voel: waarde("nieuw-obs-voel"), interpretatie: waarde("nieuw-obs-interpretatie"),
       });
       teamToonNieuweObservatie = false;
+    });
+    bij("btn-dicteer-obs", "click", () => {
+      if (actieveHerkenning) stopDicteren();
+      else startDicteren("nieuw-obs-vrije-tekst", "btn-dicteer-obs");
+    });
+    bij("btn-analyseer-obs", "click", () => {
+      analyseerEnVerdeel("nieuw-obs-vrije-tekst", {
+        hoor: "nieuw-obs-hoor", zie: "nieuw-obs-zie", voel: "nieuw-obs-voel", interpretatie: "nieuw-obs-interpretatie",
+      });
     });
 
     document.querySelectorAll("[data-verslag]").forEach((el) => el.addEventListener("change", () => wijzigVerslag(el.dataset.verslag, el.dataset.veld, el.value)));
