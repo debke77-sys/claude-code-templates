@@ -97,6 +97,9 @@
     font-size: 14px;
     margin-bottom: 20px;
   }
+  .melding.melding-ok { background: #eafaf1; border-color: #b7e4c7; color: #166534; }
+  .melding.melding-waarschuwing { background: #fef9e7; border-color: #fbe8a6; color: #92600a; }
+  .melding.melding-kritiek { background: #fdecec; border-color: #f5c2c2; color: var(--rood); }
   .samenvatting {
     display: flex;
     gap: 14px;
@@ -371,22 +374,23 @@
       { id: "loc4", naam: "Meidoornhuis" },
     ];
 
-    const bewoners = [
-      { id: "bew1", naam: "Jan Willemsen", locatieId: "loc1" },
-      { id: "bew2", naam: "Grietje Bosma", locatieId: "loc1" },
-      { id: "bew3", naam: "Piet Hendriksen", locatieId: "loc1" },
-      { id: "bew4", naam: "Antonia de Groot", locatieId: "loc1" },
-      { id: "bew5", naam: "Cornelis Mulder", locatieId: "loc2" },
-      { id: "bew6", naam: "Sophie van Dam", locatieId: "loc2" },
-      { id: "bew7", naam: "Hendrik Jansen", locatieId: "loc2" },
-      { id: "bew8", naam: "Maria Peters", locatieId: "loc2" },
-      { id: "bew9", naam: "Willem de Boer", locatieId: "loc3" },
-      { id: "bew10", naam: "Anna Visser", locatieId: "loc3" },
-      { id: "bew11", naam: "Gerrit Smit", locatieId: "loc3" },
-      { id: "bew12", naam: "Johanna Bakker", locatieId: "loc4" },
-      { id: "bew13", naam: "Klaas Dijkstra", locatieId: "loc4" },
-      { id: "bew14", naam: "Elisabeth Kramer", locatieId: "loc4" },
+    const bewonerBasis = [
+      { id: "bew1", naam: "Jan Willemsen", locatieId: "loc1", zorgvraag: "Lichte dementie, heeft structuur en herhaling nodig in de dagindeling.", contactpersoonNaam: "Rita Willemsen", contactpersoonRelatie: "Dochter", contactpersoonTelefoon: "06-11122233" },
+      { id: "bew2", naam: "Grietje Bosma", locatieId: "loc1", zorgvraag: "Rolstoelafhankelijk, redt zichzelf verder goed, houdt van gezelschap.", contactpersoonNaam: "Klaas Bosma", contactpersoonRelatie: "Zoon", contactpersoonTelefoon: "06-22233344" },
+      { id: "bew3", naam: "Piet Hendriksen", locatieId: "loc1", zorgvraag: "Herstellende van een heupoperatie, extra aandacht bij transfers.", contactpersoonNaam: "Marieke Hendriksen", contactpersoonRelatie: "Dochter", contactpersoonTelefoon: "06-33344455" },
+      { id: "bew4", naam: "Antonia de Groot", locatieId: "loc1", zorgvraag: "Diabetes type 2, vaste tijden voor maaltijden en medicatie belangrijk.", contactpersoonNaam: "Wim de Groot", contactpersoonRelatie: "Echtgenoot", contactpersoonTelefoon: "06-44455566" },
+      { id: "bew5", naam: "Cornelis Mulder", locatieId: "loc2", zorgvraag: "Slechtziend, heeft begeleiding nodig bij verplaatsen binnen de locatie.", contactpersoonNaam: "Els Mulder", contactpersoonRelatie: "Dochter", contactpersoonTelefoon: "06-55566677" },
+      { id: "bew6", naam: "Sophie van Dam", locatieId: "loc2", zorgvraag: "Beginnende dementie, raakt snel in de war bij drukte.", contactpersoonNaam: "Peter van Dam", contactpersoonRelatie: "Zoon", contactpersoonTelefoon: "06-66677788" },
+      { id: "bew7", naam: "Hendrik Jansen", locatieId: "loc2", zorgvraag: "COPD, extra tijd nodig bij inspanning en douchen.", contactpersoonNaam: "Anneke Jansen", contactpersoonRelatie: "Echtgenote", contactpersoonTelefoon: "06-77788899" },
+      { id: "bew8", naam: "Maria Peters", locatieId: "loc2", zorgvraag: "Goed zelfstandig, waardeert vaste dagstructuur en privacy.", contactpersoonNaam: "Joke Peters", contactpersoonRelatie: "Zus", contactpersoonTelefoon: "06-88899900" },
+      { id: "bew9", naam: "Willem de Boer", locatieId: "loc3", zorgvraag: "Valrisico, loopt met rollator, controle op schoeisel belangrijk.", contactpersoonNaam: "Sanne de Boer", contactpersoonRelatie: "Dochter", contactpersoonTelefoon: "06-99900011" },
+      { id: "bew10", naam: "Anna Visser", locatieId: "loc3", zorgvraag: "Rustige bewoner, houdt van vaste medewerkers en weinig wisselingen.", contactpersoonNaam: "Rob Visser", contactpersoonRelatie: "Zoon", contactpersoonTelefoon: "06-10101010" },
+      { id: "bew11", naam: "Gerrit Smit", locatieId: "loc3", zorgvraag: "Parkinson, medicatie op vaste tijden essentieel.", contactpersoonNaam: "Ineke Smit", contactpersoonRelatie: "Echtgenote", contactpersoonTelefoon: "06-20202020" },
+      { id: "bew12", naam: "Johanna Bakker", locatieId: "loc4", zorgvraag: "Somber van aard sinds overlijden partner, extra aandacht voor welzijn.", contactpersoonNaam: "Femke Bakker", contactpersoonRelatie: "Dochter", contactpersoonTelefoon: "06-30303030" },
+      { id: "bew13", naam: "Klaas Dijkstra", locatieId: "loc4", zorgvraag: "Slechthorend, gebruik gebarentaal-achtige aanwijzingen en oogcontact.", contactpersoonNaam: "Bertus Dijkstra", contactpersoonRelatie: "Broer", contactpersoonTelefoon: "06-40404040" },
+      { id: "bew14", naam: "Elisabeth Kramer", locatieId: "loc4", zorgvraag: "Actieve bewoner, wil graag zoveel mogelijk zelf blijven doen.", contactpersoonNaam: "Tom Kramer", contactpersoonRelatie: "Zoon", contactpersoonTelefoon: "06-50505050" },
     ];
+    const bewoners = bewonerBasis.map((b) => ({ id: b.id, naam: b.naam, locatieId: b.locatieId, zorgvraag: b.zorgvraag, contactpersoonNaam: b.contactpersoonNaam, contactpersoonRelatie: b.contactpersoonRelatie, contactpersoonTelefoon: b.contactpersoonTelefoon }));
 
     const medewerkers = [
       { id: "med1", naam: "Sanne de Vries", locatieId: "loc1" },
@@ -530,7 +534,28 @@
       afgerondOp: a.status === "afgerond" ? datumMinDagen(a.afgerondDagenGeleden) : null,
     }));
 
-    return { locaties, bewoners, medewerkers, taakTypes, taken, ontwikkeldoelen, observaties, gespreksverslagen, acties };
+    /* --- Bewoners: dossieraantekeningen (fictief) --- */
+    const notitieData = [
+      { bewonerId: "bew1", dagenGeleden: 6, tekst: "Was vandaag onrustig rond etenstijd, hielp om vast bij het raam te zitten." },
+      { bewonerId: "bew2", dagenGeleden: 15, tekst: "Rolstoel nagekeken door de fysio, remmen weer soepel." },
+      { bewonerId: "bew3", dagenGeleden: 3, tekst: "Herstel na heupoperatie verloopt goed, loopt nu met rollator op de gang." },
+      { bewonerId: "bew4", dagenGeleden: 10, tekst: "Bloedsuiker twee keer iets te hoog gemeten, diëtist ingeschakeld." },
+      { bewonerId: "bew5", dagenGeleden: 20, tekst: "Nieuwe markering op de deurposten aangebracht i.v.m. slechtziendheid." },
+      { bewonerId: "bew6", dagenGeleden: 8, tekst: "Raakte in de war tijdens de gezamenlijke activiteit, rustig teruggebracht naar eigen kamer." },
+      { bewonerId: "bew7", dagenGeleden: 12, tekst: "Extra rustpauzes ingepland tijdens het douchen, ademhaling was benauwd." },
+      { bewonerId: "bew8", dagenGeleden: 25, tekst: "Vraagt regelmatig om privacy, dagprogramma hierop aangepast." },
+      { bewonerId: "bew9", dagenGeleden: 4, tekst: "Bijna gevallen bij het opstaan, schoenen met antislipzool besteld." },
+      { bewonerId: "bew10", dagenGeleden: 18, tekst: "Reageert nog steeds het beste op dezelfde vaste medewerkers in de ochtend." },
+      { bewonerId: "bew11", dagenGeleden: 7, tekst: "Medicatietijden iets aangepast in overleg met de huisarts." },
+      { bewonerId: "bew12", dagenGeleden: 9, tekst: "Leek somberder dan gebruikelijk, extra gesprek gepland met de psycholoog." },
+      { bewonerId: "bew13", dagenGeleden: 22, tekst: "Gehoorapparaat schoongemaakt en batterij vervangen." },
+      { bewonerId: "bew14", dagenGeleden: 5, tekst: "Wil graag weer zelf koffiezetten, samen afgesproken wanneer dat kan." },
+    ];
+    const bewonerNotities = notitieData.map((n) => ({
+      id: nieuwId("notitie"), bewonerId: n.bewonerId, datum: datumMinDagen(n.dagenGeleden), tekst: n.tekst,
+    }));
+
+    return { locaties, bewoners, medewerkers, taakTypes, taken, ontwikkeldoelen, observaties, gespreksverslagen, acties, bewonerNotities, laatsteBackup: null };
   }
 
   /* ---------- Status & opslag ---------- */
@@ -546,11 +571,19 @@
     return nieuw;
   }
   function migreer(data) {
-    // Vult ontbrekende collecties aan voor data die met een eerdere versie is opgeslagen.
+    // Vult ontbrekende collecties/velden aan voor data die met een eerdere versie is opgeslagen.
     if (!data.ontwikkeldoelen) data.ontwikkeldoelen = [];
     if (!data.observaties) data.observaties = [];
     if (!data.gespreksverslagen) data.gespreksverslagen = [];
     if (!data.acties) data.acties = [];
+    if (!data.bewonerNotities) data.bewonerNotities = [];
+    if (data.laatsteBackup === undefined) data.laatsteBackup = null;
+    (data.bewoners || []).forEach((b) => {
+      if (b.zorgvraag === undefined) b.zorgvraag = "";
+      if (b.contactpersoonNaam === undefined) b.contactpersoonNaam = "";
+      if (b.contactpersoonRelatie === undefined) b.contactpersoonRelatie = "";
+      if (b.contactpersoonTelefoon === undefined) b.contactpersoonTelefoon = "";
+    });
     return data;
   }
   function bewaarState() {
@@ -653,6 +686,7 @@
     if (state.locaties.length === 0) { alert("Voeg eerst een locatie toe."); return; }
     const locatieId = state.locaties[0].id;
     const p = { id: nieuwId(type === "bewoner" ? "bew" : "med"), naam: naam.trim(), locatieId };
+    if (type === "bewoner") Object.assign(p, { zorgvraag: "", contactpersoonNaam: "", contactpersoonRelatie: "", contactpersoonTelefoon: "" });
     (type === "bewoner" ? state.bewoners : state.medewerkers).push(p);
     state.taakTypes.filter((tt) => tt.doelgroep === type).forEach((tt) => {
       state.taken.push({
@@ -711,6 +745,8 @@
   }
 
   function exporteer() {
+    state.laatsteBackup = vandaag();
+    bewaarState();
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -718,6 +754,7 @@
     a.download = `zorgplanner-backup-${vandaag()}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    render();
   }
 
   function importeer(bestand) {
@@ -910,6 +947,36 @@
     render();
   }
 
+  /* ---------- Bewoners: basisgegevens en dossieraantekeningen ---------- */
+  function wijzigBewonerVeld(id, veld, waarde) {
+    const b = state.bewoners.find((x) => x.id === id);
+    if (!b) return;
+    b[veld] = waarde;
+    bewaarState();
+  }
+
+  function voegBewonerNotitieToe(bewonerId, veld) {
+    if (!veld.tekst || !veld.tekst.trim()) { alert("Vul een tekst in voor de aantekening."); return; }
+    state.bewonerNotities.push({
+      id: nieuwId("notitie"), bewonerId, datum: veld.datum || vandaag(), tekst: veld.tekst.trim(),
+    });
+    bewaarState();
+    toon("Dossieraantekening toegevoegd.");
+    render();
+  }
+  function wijzigBewonerNotitie(id, veld, waarde) {
+    const n = state.bewonerNotities.find((x) => x.id === id);
+    if (!n) return;
+    n[veld] = waarde;
+    bewaarState();
+  }
+  function verwijderBewonerNotitie(id) {
+    if (!confirm("Deze dossieraantekening verwijderen?")) return;
+    state.bewonerNotities = state.bewonerNotities.filter((x) => x.id !== id);
+    bewaarState();
+    render();
+  }
+
   /* ---------- Actielijst ---------- */
   function actiePersoonNaam(actie) {
     if (actie.persoonType === "geen" || !actie.persoonId) return "—";
@@ -975,11 +1042,29 @@
     kiesMedewerker(id);
   }
 
+  function kiesBewoner(id) {
+    bewonersGekozenBewoner = id;
+    bewonersToonNieuweNotitie = false;
+    render();
+  }
+  function terugNaarBewonersoverzicht() {
+    bewonersGekozenBewoner = null;
+    render();
+  }
+  function gaNaarBewonerProfiel(id) {
+    huidigTab = "bewoners";
+    kiesBewoner(id);
+  }
+
   /* ---------- Weergave ---------- */
   let huidigTab = "dashboard";
   let filterLocatie = "alle";
   let filterDoelgroep = "alle";
   let filterStatus = "alle";
+
+  let bewonersFilterLocatie = "alle";
+  let bewonersGekozenBewoner = null;
+  let bewonersToonNieuweNotitie = false;
 
   let teamFilterLocatie = "alle";
   let teamGekozenMedewerker = null;
@@ -999,6 +1084,7 @@
       { id: "dashboard", label: "Dashboard", actief: true },
       { id: "jaarplanning", label: "Jaarplanning", actief: true },
       { id: "team", label: "Team", actief: true },
+      { id: "bewoners", label: "Bewoners", actief: true },
       { id: "actielijst", label: "Actielijst", actief: true },
     ];
     const nav = document.getElementById("nav");
@@ -1053,6 +1139,21 @@
     return punten;
   }
 
+  function backupStatusInfo() {
+    if (!state.laatsteBackup) {
+      return { tekst: "Je hebt nog geen back-up gemaakt. Maak er één via Jaarplanning → Instellingen → Back-up, zodat je gegevens niet verloren gaan.", klasse: "kritiek" };
+    }
+    const dagenGeleden = -dagenTot(state.laatsteBackup);
+    const meervoud = dagenGeleden === 1 ? "dag" : "dagen";
+    if (dagenGeleden <= 14) {
+      return { tekst: `Laatste back-up: ${naarNL(state.laatsteBackup)} (${dagenGeleden} ${meervoud} geleden).`, klasse: "ok" };
+    }
+    if (dagenGeleden <= 30) {
+      return { tekst: `Laatste back-up: ${naarNL(state.laatsteBackup)} (${dagenGeleden} ${meervoud} geleden) — overweeg binnenkort een nieuwe back-up.`, klasse: "waarschuwing" };
+    }
+    return { tekst: `Laatste back-up: ${naarNL(state.laatsteBackup)} (${dagenGeleden} ${meervoud} geleden) — maak snel een nieuwe back-up.`, klasse: "kritiek" };
+  }
+
   function renderDashboard() {
     const alleAandachtspunten = verzamelAandachtspunten();
     const zichtbaar = dashboardFilterLocatie === "alle" ? alleAandachtspunten : alleAandachtspunten.filter((p) => p.locatieId === dashboardFilterLocatie);
@@ -1104,11 +1205,15 @@
         </tr>`;
     }).join("");
 
+    const backup = backupStatusInfo();
+
     return `
       <div class="melding">
         Welkom terug. Dit <strong>dashboard</strong> verzamelt alles wat deze week aandacht nodig heeft uit de
         jaarplanning, de actielijst en de ontwikkeldoelen van je team — zodat je niet apart door elk tabblad hoeft.
       </div>
+
+      <div class="melding melding-${backup.klasse}">💾 ${backup.tekst}</div>
 
       <div class="samenvatting">
         <div class="tegel rood"><span class="getal">${aantalVerlopen}</span><span class="label">Verlopen</span></div>
@@ -1286,7 +1391,7 @@
 
           <div class="instel-blok">
             <h3>Back-up</h3>
-            <p class="klein-label">Er is geen online opslag — bewaar zelf af en toe een back-upbestand, bijvoorbeeld op een netwerkschijf.</p>
+            <p class="klein-label">Er is geen online opslag — bewaar zelf af en toe een back-upbestand, bijvoorbeeld op een netwerkschijf. ${backupStatusInfo().tekst}</p>
             <div class="knopbalk">
               <button class="subtiel" id="btn-export">Back-up downloaden (.json)</button>
               <label class="subtiel" style="cursor:pointer;">
@@ -1652,6 +1757,120 @@
     `;
   }
 
+  function renderBewoners() {
+    return bewonersGekozenBewoner ? renderBewonerProfiel(bewonersGekozenBewoner) : renderBewonersOverzicht();
+  }
+
+  function renderBewonersOverzicht() {
+    let personen = state.bewoners;
+    if (bewonersFilterLocatie !== "alle") personen = personen.filter((b) => b.locatieId === bewonersFilterLocatie);
+    personen = personen.slice().sort((a, b) => a.naam.localeCompare(b.naam));
+
+    const locatieOpties = state.locaties.map((l) => `<option value="${l.id}" ${bewonersFilterLocatie === l.id ? "selected" : ""}>${l.naam}</option>`).join("");
+
+    const kaarten = personen.map((b) => {
+      const laatsteNotitie = state.bewonerNotities.filter((n) => n.bewonerId === b.id).sort((a, c) => c.datum.localeCompare(a.datum))[0];
+      return `
+        <div class="team-kaart">
+          <h3>${b.naam}</h3>
+          <div class="locatie">${locatieNaam(b.locatieId)}</div>
+          <div class="metriek">${b.zorgvraag ? b.zorgvraag.slice(0, 70) + (b.zorgvraag.length > 70 ? "…" : "") : "Geen zorgvraag genoteerd"}</div>
+          <div class="metriek">📝 Laatste aantekening: ${laatsteNotitie ? naarNL(laatsteNotitie.datum) : "nog geen"}</div>
+          <div class="knopbalk"><button class="actie" data-kies-bewoner="${b.id}">Bekijk profiel</button></div>
+        </div>`;
+    }).join("");
+
+    return `
+      <div class="melding">
+        Overzicht van je bewoners. Per bewoner houd je hier de zorgvraag, contactpersoon en dossieraantekeningen bij,
+        naast de jaarplanning-taken die al voor hen gepland staan.
+      </div>
+      <div class="kaart">
+        <div class="filters">
+          <label>Locatie
+            <select id="bewoners-f-locatie">
+              <option value="alle" ${bewonersFilterLocatie === "alle" ? "selected" : ""}>Alle locaties</option>
+              ${locatieOpties}
+            </select>
+          </label>
+        </div>
+        <div class="team-grid">${kaarten || `<p class="klein-label">Geen bewoners gevonden met deze filter.</p>`}</div>
+      </div>
+    `;
+  }
+
+  function renderBewonerProfiel(id) {
+    const b = state.bewoners.find((x) => x.id === id);
+    if (!b) { bewonersGekozenBewoner = null; return renderBewonersOverzicht(); }
+
+    const jaarplanningTaken = state.taken
+      .filter((t) => t.persoonType === "bewoner" && t.persoonId === id)
+      .sort((a, c) => a.volgendeDatum.localeCompare(c.volgendeDatum));
+
+    const notities = state.bewonerNotities.filter((n) => n.bewonerId === id).sort((a, c) => c.datum.localeCompare(a.datum));
+
+    const jaarplanningRijen = jaarplanningTaken.map((t) => {
+      const tt = taakTypeVan(t.taakTypeId);
+      const status = statusVan(t);
+      return `
+        <tr>
+          <td>${tt ? tt.naam : "(verwijderd)"}</td>
+          <td>${naarNL(t.volgendeDatum)}</td>
+          <td><span class="badge ${status}">${statusLabel[status]}</span></td>
+          <td><button class="actie" data-actie="afronden" data-id="${t.id}">Markeer als afgerond</button></td>
+        </tr>`;
+    }).join("");
+
+    const notitieKaarten = notities.map((n) => `
+      <div class="grow-kaart">
+        <div class="grow-kop">
+          <input type="date" data-notitie="${n.id}" data-veld="datum" value="${n.datum}">
+          <button class="gevaar" data-verwijder-notitie="${n.id}">Verwijderen</button>
+        </div>
+        <textarea rows="2" style="width:100%" data-notitie="${n.id}" data-veld="tekst">${n.tekst}</textarea>
+      </div>`).join("") || `<p class="klein-label">Nog geen dossieraantekeningen geregistreerd.</p>`;
+
+    return `
+      <button class="subtiel" id="btn-terug-bewoners">← Terug naar bewonersoverzicht</button>
+
+      <div class="kaart" style="margin-top:16px;">
+        <div class="profiel-header">
+          <h2>${b.naam}</h2>
+          <select data-persoon-locatie="bewoner:${b.id}">
+            ${state.locaties.map((l) => `<option value="${l.id}" ${l.id === b.locatieId ? "selected" : ""}>${l.naam}</option>`).join("")}
+          </select>
+        </div>
+
+        <div class="form-grid">
+          <div class="grow-veld breed"><label class="mini-label">Zorgvraag</label><textarea rows="2" data-bewoner="${b.id}" data-veld="zorgvraag">${b.zorgvraag || ""}</textarea></div>
+          <div class="grow-veld"><label class="mini-label">Contactpersoon</label><input type="text" data-bewoner="${b.id}" data-veld="contactpersoonNaam" value="${b.contactpersoonNaam || ""}"></div>
+          <div class="grow-veld"><label class="mini-label">Relatie</label><input type="text" data-bewoner="${b.id}" data-veld="contactpersoonRelatie" value="${b.contactpersoonRelatie || ""}"></div>
+          <div class="grow-veld"><label class="mini-label">Telefoon</label><input type="text" data-bewoner="${b.id}" data-veld="contactpersoonTelefoon" value="${b.contactpersoonTelefoon || ""}"></div>
+        </div>
+
+        <h3 style="font-size:14px;margin-top:16px;">Jaarplanning voor deze bewoner</h3>
+        <table>
+          <thead><tr><th>Taak</th><th>Gepland op</th><th>Status</th><th>Actie</th></tr></thead>
+          <tbody>${jaarplanningRijen || `<tr><td colspan="4" style="text-align:center;color:var(--grijs-tekst);">Geen geplande taken.</td></tr>`}</tbody>
+        </table>
+      </div>
+
+      <div class="kaart">
+        <h2>Dossieraantekeningen</h2>
+        ${notitieKaarten}
+        ${bewonersToonNieuweNotitie ? `
+          <div class="nieuw-form">
+            <label class="mini-label">Datum <input type="date" id="nieuw-notitie-datum" value="${vandaag()}"></label>
+            <div class="grow-veld"><label class="mini-label">Aantekening</label><textarea rows="3" id="nieuw-notitie-tekst"></textarea></div>
+            <div class="knopbalk">
+              <button class="actie" id="btn-opslaan-notitie">Aantekening toevoegen</button>
+              <button class="subtiel" id="btn-annuleer-notitie">Annuleren</button>
+            </div>
+          </div>` : `<div class="knopbalk"><button class="subtiel" id="btn-nieuwe-notitie">+ Nieuwe aantekening</button></div>`}
+      </div>
+    `;
+  }
+
   function render() {
     renderNav();
     const main = document.getElementById("main");
@@ -1661,6 +1880,9 @@
     } else if (huidigTab === "team") {
       main.innerHTML = renderTeam();
       koppelTeamEvents();
+    } else if (huidigTab === "bewoners") {
+      main.innerHTML = renderBewoners();
+      koppelBewonersEvents();
     } else if (huidigTab === "actielijst") {
       main.innerHTML = renderActielijst();
       koppelActielijstEvents();
@@ -1763,6 +1985,34 @@
         samenvatting: waarde("nieuw-verslag-samenvatting"), afspraken: waarde("nieuw-verslag-afspraken"),
       });
       teamToonNieuwVerslag = false;
+    });
+  }
+
+  function koppelBewonersEvents() {
+    const bij = (id, event, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(event, fn); };
+    const waarde = (id) => { const el = document.getElementById(id); return el ? el.value : ""; };
+
+    bij("bewoners-f-locatie", "change", (e) => { bewonersFilterLocatie = e.target.value; render(); });
+    document.querySelectorAll("[data-kies-bewoner]").forEach((b) => b.addEventListener("click", () => kiesBewoner(b.dataset.kiesBewoner)));
+    bij("btn-terug-bewoners", "click", terugNaarBewonersoverzicht);
+
+    if (!bewonersGekozenBewoner) return;
+
+    document.querySelectorAll("[data-persoon-locatie]").forEach((sel) => sel.addEventListener("change", () => {
+      const [type, id] = sel.dataset.persoonLocatie.split(":");
+      wijzigPersoonLocatie(type, id, sel.value);
+    }));
+    document.querySelectorAll("[data-actie='afronden']").forEach((b) => b.addEventListener("click", () => markeerAfgerond(b.dataset.id)));
+
+    document.querySelectorAll("[data-bewoner]").forEach((el) => el.addEventListener("change", () => wijzigBewonerVeld(el.dataset.bewoner, el.dataset.veld, el.value)));
+
+    document.querySelectorAll("[data-notitie]").forEach((el) => el.addEventListener("change", () => wijzigBewonerNotitie(el.dataset.notitie, el.dataset.veld, el.value)));
+    document.querySelectorAll("[data-verwijder-notitie]").forEach((b) => b.addEventListener("click", () => verwijderBewonerNotitie(b.dataset.verwijderNotitie)));
+    bij("btn-nieuwe-notitie", "click", () => { bewonersToonNieuweNotitie = true; render(); });
+    bij("btn-annuleer-notitie", "click", () => { bewonersToonNieuweNotitie = false; render(); });
+    bij("btn-opslaan-notitie", "click", () => {
+      voegBewonerNotitieToe(bewonersGekozenBewoner, { datum: waarde("nieuw-notitie-datum"), tekst: waarde("nieuw-notitie-tekst") });
+      bewonersToonNieuweNotitie = false;
     });
   }
 

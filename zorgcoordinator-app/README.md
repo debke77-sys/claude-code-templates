@@ -3,7 +3,9 @@
 Eenvoudige web-app voor een coördinator in een kleinschalige zorginstelling. Vervangt losse
 Excel-bestanden voor teamoverzicht, jaarplanning, actielijst en een startdashboard.
 
-**Status:** alle vier onderdelen klaar — **Dashboard**, **Jaarplanning**, **Team** en **Actielijst**.
+**Status:** alle vier oorspronkelijke onderdelen klaar — **Dashboard**, **Jaarplanning**, **Team**
+en **Actielijst** — plus twee uitbreidingen: een **Bewoners**-tabblad en een back-up-herinnering
+op het dashboard.
 
 ## Hoe open ik de app?
 
@@ -54,6 +56,9 @@ Het dashboard is het **startscherm** — dit zie je als eerste wanneer je de app
 - **"Overzicht per locatie"** toont per locatie het aantal bewoners en medewerkers, en hoeveel
   jaarplanning-taken en acties er verlopen of deze week gepland staan — een snel totaalbeeld
   zonder per onderdeel te hoeven filteren.
+- **Back-up-herinnering**: een gekleurde balk laat zien wanneer je voor het laatst een back-up
+  hebt gemaakt (groen: binnen 14 dagen, geel: 15–30 dagen, rood: langer geleden of nog nooit).
+  Dezelfde melding staat ook bij **Jaarplanning → Instellingen → Back-up**.
 
 ## Hoe werkt de jaarplanning?
 
@@ -104,8 +109,22 @@ Het dashboard is het **startscherm** — dit zie je als eerste wanneer je de app
   "Alle statussen" om ook afgeronde acties terug te zien.
 - Nieuwe acties voeg je toe via **+ Nieuwe actie**; verwijderen kan per actie.
 
-## Alle vier onderdelen zijn nu klaar
+## Hoe werkt het onderdeel Bewoners?
 
-De vier onderdelen uit de oorspronkelijke wens zijn allemaal gebouwd: Team, Jaarplanning,
-Actielijst en Dashboard. Wil je iets aanpassen, uitbreiden of anders inrichten — geef het
-gewoon aan.
+- **Bewonersoverzicht**: kaartjes per bewoner met locatie, een korte preview van de zorgvraag
+  en de datum van de laatste dossieraantekening. Filter op locatie, klik op **Bekijk profiel**
+  voor details.
+- **Profiel per bewoner** bevat:
+  - **Basisgegevens** — zorgvraag en contactpersoon (naam, relatie, telefoon), direct te
+    bewerken.
+  - **Jaarplanning voor deze bewoner** — dezelfde dossierchecks/evaluaties als in de
+    jaarplanning, met **Markeer als afgerond** zonder naar dat tabblad te hoeven wisselen.
+  - **Dossieraantekeningen** — een kort logboek van bijzonderheden per datum (bijv. een
+    valincident, aangepaste medicatietijden). Toevoegen via **+ Nieuwe aantekening**,
+    bewerken/verwijderen kan per aantekening.
+
+## Alle onderdelen zijn nu klaar
+
+De vier onderdelen uit de oorspronkelijke wens (Team, Jaarplanning, Actielijst, Dashboard) zijn
+gebouwd, aangevuld met een Bewoners-tabblad en een back-up-herinnering. Wil je iets aanpassen,
+uitbreiden of anders inrichten — geef het gewoon aan.
