@@ -4,8 +4,8 @@ Eenvoudige web-app voor een coördinator in een kleinschalige zorginstelling. Ve
 Excel-bestanden voor teamoverzicht, jaarplanning, actielijst en een startdashboard.
 
 **Status:** alle vier oorspronkelijke onderdelen klaar — **Dashboard**, **Jaarplanning**, **Team**
-en **Actielijst** — plus twee uitbreidingen: een **Bewoners**-tabblad en een back-up-herinnering
-op het dashboard.
+en **Actielijst** — plus uitbreidingen: een **Bewoners**-tabblad, een back-up-herinnering,
+competentiegebieden bij ontwikkeldoelen, een wijzigingenlog en een kwaliteitsoverzicht.
 
 ## Hoe open ik de app?
 
@@ -59,6 +59,10 @@ Het dashboard is het **startscherm** — dit zie je als eerste wanneer je de app
 - **Back-up-herinnering**: een gekleurde balk laat zien wanneer je voor het laatst een back-up
   hebt gemaakt (groen: binnen 14 dagen, geel: 15–30 dagen, rood: langer geleden of nog nooit).
   Dezelfde melding staat ook bij **Jaarplanning → Instellingen → Back-up**.
+- **Wijzigingen & verandertrajecten**: een logboek per locatie van beleidswijzigingen en
+  verandertrajecten (bijv. een nieuwe procedure of een pilot), met status Aangekondigd/In
+  uitvoering/Doorgevoerd. Gebruikt dezelfde locatiefilter als de aandachtspuntenlijst hierboven.
+  Toevoegen via **+ Nieuwe wijziging**.
 
 ## Hoe werkt de jaarplanning?
 
@@ -68,6 +72,9 @@ Het dashboard is het **startscherm** — dit zie je als eerste wanneer je de app
   volgende ronde automatisch in, op basis van de ingestelde frequentie.
 - Je kunt een datum ook handmatig verzetten met het datumveld naast een taak.
 - Filter op locatie, op bewoners/medewerkers, of op status.
+- **Kwaliteitsoverzicht** (inklapbaar, onder de tabel): laat per taaktype en per kwartaal zien
+  hoeveel taken zijn afgerond en welk percentage daarvan op tijd was (dus vóór de geplande
+  datum). Respecteert het locatiefilter hierboven — handig voor een teamoverleg of audit.
 
 ## Hoe werkt het onderdeel Team?
 
@@ -76,8 +83,12 @@ Het dashboard is het **startscherm** — dit zie je als eerste wanneer je de app
   details.
 - **Profiel per medewerker** bevat drie onderdelen:
   - **Ontwikkeldoelen (GROW)** — Goal, Reality, Options, Will, met status (open/bereikt/
-    vervallen) en een streefdatum. Velden zijn direct te bewerken; wijzigingen worden
-    automatisch opgeslagen.
+    vervallen), een **competentiegebied** (Leiderschap, Kwaliteit, Verandering, HRM & coaching,
+    Bedrijfsvoering, Persoonlijke ontwikkeling of Overig — gebaseerd op het functieprofiel van
+    de opleiding Management in de Zorg) en een streefdatum. Velden zijn direct te bewerken;
+    wijzigingen worden automatisch opgeslagen. Op het teamoverzicht zie je een tabel met het
+    aantal open ontwikkeldoelen per competentiegebied, zodat je in één oogopslag ziet waar het
+    team aan werkt en waar nog niets loopt.
   - **Observaties (hoor/zie/voel/interpreteer)** — vastleggen wat je hebt waargenomen,
     los van je interpretatie. Bij een nieuwe observatie kun je ook **dicteren**: spreek je
     observatie in gewone taal in, en klik op **Analyseer en verdeel** om de tekst automatisch
@@ -126,5 +137,6 @@ Het dashboard is het **startscherm** — dit zie je als eerste wanneer je de app
 ## Alle onderdelen zijn nu klaar
 
 De vier onderdelen uit de oorspronkelijke wens (Team, Jaarplanning, Actielijst, Dashboard) zijn
-gebouwd, aangevuld met een Bewoners-tabblad en een back-up-herinnering. Wil je iets aanpassen,
-uitbreiden of anders inrichten — geef het gewoon aan.
+gebouwd, aangevuld met een Bewoners-tabblad, een back-up-herinnering, competentiegebieden bij
+ontwikkeldoelen, een wijzigingenlog en een kwaliteitsoverzicht. Wil je iets aanpassen, uitbreiden
+of anders inrichten — geef het gewoon aan.

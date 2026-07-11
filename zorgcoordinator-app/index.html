@@ -208,7 +208,7 @@
     align-items: center;
     margin-bottom: 12px;
   }
-  details.instellingen summary {
+  .kaart details summary {
     cursor: pointer;
     font-weight: 600;
     color: var(--blauw-donker);
@@ -336,6 +336,7 @@
   "use strict";
 
   const OPSLAGSLEUTEL = "zorgplanner-data-v1";
+  const COMPETENTIEGEBIEDEN = ["Leiderschap", "Kwaliteit", "Verandering", "HRM & coaching", "Bedrijfsvoering", "Persoonlijke ontwikkeling", "Overig"];
 
   /* ---------- Datumhelpers ---------- */
   function isoVan(d) {
@@ -447,17 +448,30 @@
       return isoVan(d);
     }
 
+    /* --- Fictieve afrondingsgeschiedenis, voor het kwaliteitsoverzicht --- */
+    taken.forEach((t, i) => {
+      if (i % 3 !== 0) return;
+      const tt = taakTypes.find((x) => x.id === t.taakTypeId);
+      const vorigeGeplandeDatum = voegMaandenToe(t.volgendeDatum, -tt.frequentieMaanden);
+      const teLaat = hashOffset(t.id) % 4 === 0;
+      const d = new Date(vorigeGeplandeDatum + "T00:00:00");
+      d.setDate(d.getDate() + (teLaat ? 5 : -3));
+      const voltooidOp = isoVan(d);
+      t.historie.push({ voltooidOp, geplandeDatum: vorigeGeplandeDatum, opTijd: !teLaat });
+      t.laatsteVoltooid = voltooidOp;
+    });
+
     const growData = [
-      { medewerkerId: "med1", titel: "Rustiger reageren bij onrust van bewoners", g: "In stressvolle situaties kalm en sturend overkomen op bewoners en collega's.", r: "Merkt dat ze soms zelf gehaast overkomt bij onrust in de groep, wat spanning kan vergroten.", o: "Ademhalingstechniek toepassen, korte reflectiemomenten inbouwen, meelopen met een rustige collega.", w: "Oefent 4 weken met de techniek en bespreekt voortgang in het volgende gesprek.", status: "open", dagenTot: 70 },
-      { medewerkerId: "med2", titel: "Vlotter en vollediger rapporteren in het dossier", g: "Rapportages op dezelfde dag afronden en duidelijk voor collega's.", r: "Rapportages blijven soms een dag liggen door drukte in de avonddienst.", o: "Vast rapportagemoment inplannen, sjabloon gebruiken voor opbouw van het verslag.", w: "Start volgende week met een vast rapportagemoment aan het eind van de dienst.", status: "open", dagenTot: 40 },
-      { medewerkerId: "med3", titel: "Zelfverzekerder communiceren met familie", g: "Moeilijke gesprekken met familie zelfstandig kunnen voeren.", r: "Vraagt nu vaak een collega om erbij te zijn bij lastige gesprekken.", o: "Rollenspel oefenen, gesprekstechnieken volgen via interne scholing.", w: "Voert het eerstvolgende familiegesprek zelfstandig, met nabespreking.", status: "bereikt", dagenTot: -20 },
-      { medewerkerId: "med4", titel: "Beter plannen tijdens drukke ochtenddienst", g: "Vaste volgorde aanhouden zodat niemand wordt overgeslagen.", r: "Raakt soms het overzicht kwijt bij twee gelijktijdige zorgvragen.", o: "Checklist per bewoner gebruiken, prioriteiten vooraf doornemen met team.", w: "Test de checklist twee weken en evalueert daarna.", status: "open", dagenTot: 25 },
-      { medewerkerId: "med5", titel: "Nieuwe collega's beter inwerken", g: "Nieuwe collega's na twee weken zelfstandig laten werken op de basis.", r: "Inwerkschema wordt nu ad hoc ingevuld, niet altijd volledig.", o: "Vast inwerkschema opstellen, wekelijks kort evaluatiemoment.", w: "Maakt het inwerkschema en gebruikt het bij de volgende nieuwe collega.", status: "open", dagenTot: 90 },
-      { medewerkerId: "med6", titel: "Signalen van pijn beter herkennen", g: "Pijnsignalen bij bewoners met beperkte communicatie eerder opmerken.", r: "Twijfelt soms of onrust duidt op pijn of op iets anders.", o: "Pijnobservatielijst gebruiken, kennis ophalen bij de verpleegkundige.", w: "Gebruikt de observatielijst een maand bij twee bewoners en bespreekt de uitkomst.", status: "open", dagenTot: 15 },
-      { medewerkerId: "med7", titel: "Grenzen aangeven richting collega's", g: "Op een prettige manier aangeven wanneer de planning niet haalbaar is.", r: "Neemt nu vaak extra taken over, ook als de dienst al vol zit.", o: "Kort overleg met coördinator bij twijfel, korte zinnen oefenen om nee te zeggen.", w: "Oefent dit de komende weken en bespreekt een voorbeeld in het volgende gesprek.", status: "open", dagenTot: 55 },
-      { medewerkerId: "med8", titel: "Medicatieveiligheid verder verstevigen", g: "Dubbelcheck bij medicatie foutloos en zonder tijdsdruk uitvoeren.", r: "Voelt soms tijdsdruk waardoor de dubbelcheck te snel gaat.", o: "Vast moment inplannen voor medicatierondes, collega actief betrekken bij check.", w: "Bespreekt met de coördinator hoe de planning iets kan worden aangepast.", status: "bereikt", dagenTot: -45 },
-      { medewerkerId: "med9", titel: "Overdracht korter en duidelijker maken", g: "Overdracht binnen tien minuten helder overdragen aan de volgende dienst.", r: "Overdracht duurt nu vaak langer door zijsprongen in het verhaal.", o: "Vaste opbouw gebruiken (wat/hoe laat/wat moet er gebeuren), oefenen met timer.", w: "Gebruikt de vaste opbouw bij de eerstvolgende vijf overdrachten.", status: "open", dagenTot: 30 },
-      { medewerkerId: "med10", titel: "Meer eigenaarschap tonen in avonddienst", g: "Zelfstandig kleine knelpunten oplossen zonder eerst te overleggen.", r: "Belt nu snel de coördinator, ook bij kleinere praktische vragen.", o: "Eerst zelf een voorstel bedenken, pas daarna overleggen indien nodig.", w: "Probeert dit de komende twee diensten en deelt de ervaring.", status: "open", dagenTot: 60 },
+      { medewerkerId: "med1", titel: "Rustiger reageren bij onrust van bewoners", g: "In stressvolle situaties kalm en sturend overkomen op bewoners en collega's.", r: "Merkt dat ze soms zelf gehaast overkomt bij onrust in de groep, wat spanning kan vergroten.", o: "Ademhalingstechniek toepassen, korte reflectiemomenten inbouwen, meelopen met een rustige collega.", w: "Oefent 4 weken met de techniek en bespreekt voortgang in het volgende gesprek.", status: "open", dagenTot: 70, competentiegebied: "Persoonlijke ontwikkeling" },
+      { medewerkerId: "med2", titel: "Vlotter en vollediger rapporteren in het dossier", g: "Rapportages op dezelfde dag afronden en duidelijk voor collega's.", r: "Rapportages blijven soms een dag liggen door drukte in de avonddienst.", o: "Vast rapportagemoment inplannen, sjabloon gebruiken voor opbouw van het verslag.", w: "Start volgende week met een vast rapportagemoment aan het eind van de dienst.", status: "open", dagenTot: 40, competentiegebied: "Kwaliteit" },
+      { medewerkerId: "med3", titel: "Zelfverzekerder communiceren met familie", g: "Moeilijke gesprekken met familie zelfstandig kunnen voeren.", r: "Vraagt nu vaak een collega om erbij te zijn bij lastige gesprekken.", o: "Rollenspel oefenen, gesprekstechnieken volgen via interne scholing.", w: "Voert het eerstvolgende familiegesprek zelfstandig, met nabespreking.", status: "bereikt", dagenTot: -20, competentiegebied: "Persoonlijke ontwikkeling" },
+      { medewerkerId: "med4", titel: "Beter plannen tijdens drukke ochtenddienst", g: "Vaste volgorde aanhouden zodat niemand wordt overgeslagen.", r: "Raakt soms het overzicht kwijt bij twee gelijktijdige zorgvragen.", o: "Checklist per bewoner gebruiken, prioriteiten vooraf doornemen met team.", w: "Test de checklist twee weken en evalueert daarna.", status: "open", dagenTot: 25, competentiegebied: "Bedrijfsvoering" },
+      { medewerkerId: "med5", titel: "Nieuwe collega's beter inwerken", g: "Nieuwe collega's na twee weken zelfstandig laten werken op de basis.", r: "Inwerkschema wordt nu ad hoc ingevuld, niet altijd volledig.", o: "Vast inwerkschema opstellen, wekelijks kort evaluatiemoment.", w: "Maakt het inwerkschema en gebruikt het bij de volgende nieuwe collega.", status: "open", dagenTot: 90, competentiegebied: "HRM & coaching" },
+      { medewerkerId: "med6", titel: "Signalen van pijn beter herkennen", g: "Pijnsignalen bij bewoners met beperkte communicatie eerder opmerken.", r: "Twijfelt soms of onrust duidt op pijn of op iets anders.", o: "Pijnobservatielijst gebruiken, kennis ophalen bij de verpleegkundige.", w: "Gebruikt de observatielijst een maand bij twee bewoners en bespreekt de uitkomst.", status: "open", dagenTot: 15, competentiegebied: "Kwaliteit" },
+      { medewerkerId: "med7", titel: "Grenzen aangeven richting collega's", g: "Op een prettige manier aangeven wanneer de planning niet haalbaar is.", r: "Neemt nu vaak extra taken over, ook als de dienst al vol zit.", o: "Kort overleg met coördinator bij twijfel, korte zinnen oefenen om nee te zeggen.", w: "Oefent dit de komende weken en bespreekt een voorbeeld in het volgende gesprek.", status: "open", dagenTot: 55, competentiegebied: "Persoonlijke ontwikkeling" },
+      { medewerkerId: "med8", titel: "Medicatieveiligheid verder verstevigen", g: "Dubbelcheck bij medicatie foutloos en zonder tijdsdruk uitvoeren.", r: "Voelt soms tijdsdruk waardoor de dubbelcheck te snel gaat.", o: "Vast moment inplannen voor medicatierondes, collega actief betrekken bij check.", w: "Bespreekt met de coördinator hoe de planning iets kan worden aangepast.", status: "bereikt", dagenTot: -45, competentiegebied: "Kwaliteit" },
+      { medewerkerId: "med9", titel: "Overdracht korter en duidelijker maken", g: "Overdracht binnen tien minuten helder overdragen aan de volgende dienst.", r: "Overdracht duurt nu vaak langer door zijsprongen in het verhaal.", o: "Vaste opbouw gebruiken (wat/hoe laat/wat moet er gebeuren), oefenen met timer.", w: "Gebruikt de vaste opbouw bij de eerstvolgende vijf overdrachten.", status: "open", dagenTot: 30, competentiegebied: "Bedrijfsvoering" },
+      { medewerkerId: "med10", titel: "Meer eigenaarschap tonen in avonddienst", g: "Zelfstandig kleine knelpunten oplossen zonder eerst te overleggen.", r: "Belt nu snel de coördinator, ook bij kleinere praktische vragen.", o: "Eerst zelf een voorstel bedenken, pas daarna overleggen indien nodig.", w: "Probeert dit de komende twee diensten en deelt de ervaring.", status: "open", dagenTot: 60, competentiegebied: "Leiderschap" },
     ];
     const ontwikkeldoelen = growData.map((g) => ({
       id: nieuwId("doel"),
@@ -465,6 +479,7 @@
       titel: g.titel,
       g: g.g, r: g.r, o: g.o, w: g.w,
       status: g.status,
+      competentiegebied: g.competentiegebied,
       streefdatum: datumPlusDagen(g.dagenTot),
       aangemaaktOp: datumMinDagen(30),
     }));
@@ -555,7 +570,21 @@
       id: nieuwId("notitie"), bewonerId: n.bewonerId, datum: datumMinDagen(n.dagenGeleden), tekst: n.tekst,
     }));
 
-    return { locaties, bewoners, medewerkers, taakTypes, taken, ontwikkeldoelen, observaties, gespreksverslagen, acties, bewonerNotities, laatsteBackup: null };
+    /* --- Wijzigingen / verandertrajecten (fictief) --- */
+    const wijzigingData = [
+      { titel: "Nieuwe medicatieprocedure ingevoerd", locatieId: "loc1", dagenTot: -30, status: "doorgevoerd", omschrijving: "Dubbele check bij uitgifte is nu verplicht voor alle medewerkers, ook bij vaste medicatie." },
+      { titel: "Overstap naar nieuw cliëntdossiersysteem", locatieId: "loc2", dagenTot: -10, status: "in uitvoering", omschrijving: "Alle medewerkers worden gefaseerd ingewerkt; oude en nieuwe systeem draaien nog naast elkaar." },
+      { titel: "Aangepaste bezoektijden voor familie", locatieId: "loc3", dagenTot: 14, status: "aangekondigd", omschrijving: "Ruimere bezoektijden in de avond, ingaand na overleg met de cliëntenraad." },
+      { titel: "Nieuwe brandveiligheidsinstructies", locatieId: "loc4", dagenTot: -60, status: "doorgevoerd", omschrijving: "Jaarlijkse BHV-instructie herzien, vluchtroutes opnieuw gemarkeerd." },
+      { titel: "Pilot vast avondteam per locatie", locatieId: "loc2", dagenTot: 30, status: "aangekondigd", omschrijving: "Minder wisselende diensten in de avond, om rust voor bewoners te vergroten." },
+      { titel: "Nieuwe werkwijze rapporteren in het dossier", locatieId: "loc1", dagenTot: -5, status: "in uitvoering", omschrijving: "Vast rapportagemoment aan het eind van elke dienst, sjabloon wordt momenteel getest." },
+    ];
+    const wijzigingen = wijzigingData.map((w) => ({
+      id: nieuwId("wijziging"), titel: w.titel, locatieId: w.locatieId, datum: datumPlusDagen(w.dagenTot),
+      status: w.status, omschrijving: w.omschrijving,
+    }));
+
+    return { locaties, bewoners, medewerkers, taakTypes, taken, ontwikkeldoelen, observaties, gespreksverslagen, acties, bewonerNotities, wijzigingen, laatsteBackup: null };
   }
 
   /* ---------- Status & opslag ---------- */
@@ -577,12 +606,19 @@
     if (!data.gespreksverslagen) data.gespreksverslagen = [];
     if (!data.acties) data.acties = [];
     if (!data.bewonerNotities) data.bewonerNotities = [];
+    if (!data.wijzigingen) data.wijzigingen = [];
     if (data.laatsteBackup === undefined) data.laatsteBackup = null;
     (data.bewoners || []).forEach((b) => {
       if (b.zorgvraag === undefined) b.zorgvraag = "";
       if (b.contactpersoonNaam === undefined) b.contactpersoonNaam = "";
       if (b.contactpersoonRelatie === undefined) b.contactpersoonRelatie = "";
       if (b.contactpersoonTelefoon === undefined) b.contactpersoonTelefoon = "";
+    });
+    (data.ontwikkeldoelen || []).forEach((d) => {
+      if (d.competentiegebied === undefined) d.competentiegebied = "Overig";
+    });
+    (data.taken || []).forEach((t) => {
+      t.historie = (t.historie || []).map((h) => (typeof h === "string" ? { voltooidOp: h, geplandeDatum: null, opTijd: null } : h));
     });
     return data;
   }
@@ -630,7 +666,9 @@
     const taak = state.taken.find((t) => t.id === taakId);
     if (!taak) return;
     const tt = taakTypeVan(taak.taakTypeId);
-    taak.historie.push(vandaag());
+    const geplandeDatum = taak.volgendeDatum;
+    const opTijd = dagenTot(geplandeDatum) >= 0;
+    taak.historie.push({ voltooidOp: vandaag(), geplandeDatum, opTijd });
     taak.laatsteVoltooid = vandaag();
     taak.volgendeDatum = voegMaandenToe(vandaag(), tt.frequentieMaanden);
     bewaarState();
@@ -882,7 +920,8 @@
     state.ontwikkeldoelen.push({
       id: nieuwId("doel"), medewerkerId, titel: veld.titel.trim(),
       g: veld.g || "", r: veld.r || "", o: veld.o || "", w: veld.w || "",
-      status: "open", streefdatum: veld.streefdatum || vandaag(), aangemaaktOp: vandaag(),
+      status: "open", competentiegebied: veld.competentiegebied || "Overig",
+      streefdatum: veld.streefdatum || vandaag(), aangemaaktOp: vandaag(),
     });
     bewaarState();
     toon("Ontwikkeldoel toegevoegd.");
@@ -973,6 +1012,32 @@
   function verwijderBewonerNotitie(id) {
     if (!confirm("Deze dossieraantekening verwijderen?")) return;
     state.bewonerNotities = state.bewonerNotities.filter((x) => x.id !== id);
+    bewaarState();
+    render();
+  }
+
+  /* ---------- Wijzigingen / verandertrajecten ---------- */
+  function voegWijzigingToe(veld) {
+    if (!veld.titel || !veld.titel.trim()) { alert("Geef de wijziging een titel."); return; }
+    if (!veld.locatieId) { alert("Kies een locatie."); return; }
+    state.wijzigingen.push({
+      id: nieuwId("wijziging"), titel: veld.titel.trim(), locatieId: veld.locatieId,
+      datum: veld.datum || vandaag(), status: veld.status || "aangekondigd", omschrijving: veld.omschrijving || "",
+    });
+    bewaarState();
+    toon("Wijziging toegevoegd.");
+    render();
+  }
+  function wijzigWijziging(id, veld, waarde) {
+    const w = state.wijzigingen.find((x) => x.id === id);
+    if (!w) return;
+    w[veld] = waarde;
+    bewaarState();
+    render();
+  }
+  function verwijderWijziging(id) {
+    if (!confirm("Deze wijziging verwijderen?")) return;
+    state.wijzigingen = state.wijzigingen.filter((x) => x.id !== id);
     bewaarState();
     render();
   }
@@ -1078,6 +1143,7 @@
   let toonNieuweActie = false;
 
   let dashboardFilterLocatie = "alle";
+  let toonNieuweWijziging = false;
 
   function renderNav() {
     const tabs = [
@@ -1205,6 +1271,25 @@
         </tr>`;
     }).join("");
 
+    let zichtbareWijzigingen = state.wijzigingen.slice();
+    if (dashboardFilterLocatie !== "alle") zichtbareWijzigingen = zichtbareWijzigingen.filter((w) => w.locatieId === dashboardFilterLocatie);
+    zichtbareWijzigingen.sort((a, c) => c.datum.localeCompare(a.datum));
+    const wijzigingRijen = zichtbareWijzigingen.map((w) => `
+      <tr>
+        <td>${w.titel}</td>
+        <td>${locatieNaam(w.locatieId)}</td>
+        <td>${naarNL(w.datum)}</td>
+        <td>
+          <select data-wijziging="${w.id}" data-veld="status">
+            <option value="aangekondigd" ${w.status === "aangekondigd" ? "selected" : ""}>Aangekondigd</option>
+            <option value="in uitvoering" ${w.status === "in uitvoering" ? "selected" : ""}>In uitvoering</option>
+            <option value="doorgevoerd" ${w.status === "doorgevoerd" ? "selected" : ""}>Doorgevoerd</option>
+          </select>
+        </td>
+        <td>${w.omschrijving || "—"}</td>
+        <td><button class="gevaar" data-verwijder-wijziging="${w.id}">Verwijderen</button></td>
+      </tr>`).join("");
+
     const backup = backupStatusInfo();
 
     return `
@@ -1245,7 +1330,57 @@
           <tbody>${locatieRijen}</tbody>
         </table>
       </div>
+
+      <div class="kaart">
+        <h2>Wijzigingen & verandertrajecten</h2>
+        <p class="klein-label">Beleidswijzigingen en verandertrajecten per locatie — wie is aangekondigd, wat loopt, wat is doorgevoerd.</p>
+        <table>
+          <thead><tr><th>Titel</th><th>Locatie</th><th>Datum</th><th>Status</th><th>Omschrijving</th><th></th></tr></thead>
+          <tbody>${wijzigingRijen || `<tr><td colspan="6" style="text-align:center;color:var(--grijs-tekst);padding:24px;">Nog geen wijzigingen geregistreerd voor deze locatie.</td></tr>`}</tbody>
+        </table>
+        ${toonNieuweWijziging ? `
+          <div class="nieuw-form">
+            <div class="grow-veld"><label class="mini-label">Titel</label><input type="text" id="nieuw-wijziging-titel" style="width:100%"></div>
+            <div class="form-grid">
+              <label class="mini-label">Locatie
+                <select id="nieuw-wijziging-locatie">
+                  ${state.locaties.map((l) => `<option value="${l.id}">${l.naam}</option>`).join("")}
+                </select>
+              </label>
+              <label class="mini-label">Datum <input type="date" id="nieuw-wijziging-datum" value="${vandaag()}"></label>
+              <label class="mini-label">Status
+                <select id="nieuw-wijziging-status">
+                  <option value="aangekondigd">Aangekondigd</option>
+                  <option value="in uitvoering">In uitvoering</option>
+                  <option value="doorgevoerd">Doorgevoerd</option>
+                </select>
+              </label>
+            </div>
+            <div class="grow-veld"><label class="mini-label">Omschrijving</label><textarea rows="2" id="nieuw-wijziging-omschrijving"></textarea></div>
+            <div class="knopbalk">
+              <button class="actie" id="btn-opslaan-wijziging">Wijziging toevoegen</button>
+              <button class="subtiel" id="btn-annuleer-wijziging">Annuleren</button>
+            </div>
+          </div>` : `<div class="knopbalk"><button class="subtiel" id="btn-nieuwe-wijziging">+ Nieuwe wijziging</button></div>`}
+      </div>
     `;
+  }
+
+  function kwartaalVan(iso) {
+    const [j, m] = iso.split("-").map(Number);
+    return `${j} K${Math.ceil(m / 3)}`;
+  }
+
+  function verzamelKwaliteitsdata() {
+    const voltooiingen = [];
+    state.taken.forEach((t) => {
+      if (filterLocatie !== "alle" && t.locatieId !== filterLocatie) return;
+      (t.historie || []).forEach((h) => {
+        if (h.opTijd === null || h.opTijd === undefined) return;
+        voltooiingen.push({ taakTypeId: t.taakTypeId, voltooidOp: h.voltooidOp, opTijd: h.opTijd });
+      });
+    });
+    return voltooiingen;
   }
 
   function renderJaarplanning() {
@@ -1277,6 +1412,24 @@
           </td>
         </tr>`;
     }).join("");
+
+    const voltooiingen = verzamelKwaliteitsdata();
+    const perTaaktype = {};
+    state.taakTypes.forEach((tt) => { perTaaktype[tt.id] = { naam: tt.naam, totaal: 0, opTijd: 0 }; });
+    const perKwartaal = {};
+    voltooiingen.forEach((v) => {
+      if (perTaaktype[v.taakTypeId]) {
+        perTaaktype[v.taakTypeId].totaal += 1;
+        if (v.opTijd) perTaaktype[v.taakTypeId].opTijd += 1;
+      }
+      const q = kwartaalVan(v.voltooidOp);
+      if (!perKwartaal[q]) perKwartaal[q] = { totaal: 0, opTijd: 0 };
+      perKwartaal[q].totaal += 1;
+      if (v.opTijd) perKwartaal[q].opTijd += 1;
+    });
+    const percentage = (opTijd, totaal) => (totaal === 0 ? "—" : Math.round((opTijd / totaal) * 100) + "%");
+    const taaktypeRijen = Object.values(perTaaktype).map((r) => `<tr><td>${r.naam}</td><td>${r.totaal}</td><td>${r.opTijd}</td><td>${percentage(r.opTijd, r.totaal)}</td></tr>`).join("");
+    const kwartaalRijen = Object.keys(perKwartaal).sort().map((q) => `<tr><td>${q}</td><td>${perKwartaal[q].totaal}</td><td>${perKwartaal[q].opTijd}</td><td>${percentage(perKwartaal[q].opTijd, perKwartaal[q].totaal)}</td></tr>`).join("");
 
     return `
       <div class="melding">
@@ -1326,6 +1479,27 @@
           <tbody>${rijen || `<tr><td colspan="8" style="text-align:center;color:var(--grijs-tekst);padding:24px;">Geen taken gevonden met deze filters.</td></tr>`}</tbody>
         </table>
         <p class="klein-label">${zichtbaar.length} van ${alleTaken.length} taken getoond.</p>
+      </div>
+
+      <div class="kaart">
+        <details>
+          <summary>Kwaliteitsoverzicht: hoeveel taken op tijd zijn afgerond${filterLocatie !== "alle" ? ` (${locatieNaam(filterLocatie)})` : ""}</summary>
+          <div class="instel-blok">
+            <h3>Per taaktype</h3>
+            <table>
+              <thead><tr><th>Taaktype</th><th>Afgerond</th><th>Op tijd</th><th>% op tijd</th></tr></thead>
+              <tbody>${taaktypeRijen}</tbody>
+            </table>
+          </div>
+          <div class="instel-blok">
+            <h3>Per kwartaal</h3>
+            <table>
+              <thead><tr><th>Kwartaal</th><th>Afgerond</th><th>Op tijd</th><th>% op tijd</th></tr></thead>
+              <tbody>${kwartaalRijen || `<tr><td colspan="4" style="text-align:center;color:var(--grijs-tekst);">Nog geen afgeronde taken met een geregistreerde geschiedenis.</td></tr>`}</tbody>
+            </table>
+            <p class="klein-label">Gebaseerd op alle keren dat een taak is afgerond (via "Markeer als afgerond"), gefilterd op de locatie hierboven. Gebruik dit als eenvoudig kwaliteitsbeeld, bijvoorbeeld voor een teamoverleg of audit.</p>
+          </div>
+        </details>
       </div>
 
       <div class="kaart">
@@ -1565,11 +1739,30 @@
         </div>`;
     }).join("");
 
+    const persoonIds = new Set(personen.map((p) => p.id));
+    const competentieTelling = {};
+    COMPETENTIEGEBIEDEN.forEach((c) => { competentieTelling[c] = 0; });
+    state.ontwikkeldoelen.forEach((d) => {
+      if (d.status !== "open" || !persoonIds.has(d.medewerkerId)) return;
+      competentieTelling[d.competentiegebied] = (competentieTelling[d.competentiegebied] || 0) + 1;
+    });
+    const competentieRijen = COMPETENTIEGEBIEDEN.map((c) => `<tr><td>${c}</td><td>${competentieTelling[c]}</td></tr>`).join("");
+
     return `
       <div class="melding">
         Overzicht van je team. Per medewerker houd je hier ontwikkeldoelen (GROW-methode), observaties
         (hoor/zie/voel/interpreteer) en gespreksverslagen bij.
       </div>
+
+      <div class="kaart">
+        <h2>Open ontwikkeldoelen per competentiegebied</h2>
+        <p class="klein-label">Gebaseerd op de competentiegebieden uit het functieprofiel Management in de Zorg — laat in één oogopslag zien waar het team aan werkt, en waar nog niets loopt.</p>
+        <table class="locatie-overzicht">
+          <thead><tr><th>Competentiegebied</th><th>Open ontwikkeldoelen</th></tr></thead>
+          <tbody>${competentieRijen}</tbody>
+        </table>
+      </div>
+
       <div class="kaart">
         <div class="filters">
           <label>Locatie
@@ -1612,6 +1805,9 @@
       <div class="grow-kaart">
         <div class="grow-kop">
           <input type="text" style="font-weight:600;flex:1;min-width:200px;" data-doel="${d.id}" data-veld="titel" value="${d.titel}">
+          <select data-doel="${d.id}" data-veld="competentiegebied">
+            ${COMPETENTIEGEBIEDEN.map((c) => `<option value="${c}" ${d.competentiegebied === c ? "selected" : ""}>${c}</option>`).join("")}
+          </select>
           <select data-doel="${d.id}" data-veld="status">
             <option value="open" ${d.status === "open" ? "selected" : ""}>Open</option>
             <option value="bereikt" ${d.status === "bereikt" ? "selected" : ""}>Bereikt</option>
@@ -1689,6 +1885,11 @@
               <div class="grow-veld"><label class="mini-label">Options</label><textarea rows="2" id="nieuw-doel-o"></textarea></div>
               <div class="grow-veld"><label class="mini-label">Will</label><textarea rows="2" id="nieuw-doel-w"></textarea></div>
             </div>
+            <label class="mini-label">Competentiegebied
+              <select id="nieuw-doel-competentiegebied">
+                ${COMPETENTIEGEBIEDEN.map((c) => `<option value="${c}">${c}</option>`).join("")}
+              </select>
+            </label>
             <label class="mini-label">Streefdatum <input type="date" id="nieuw-doel-streefdatum" value="${vandaag()}"></label>
             <div class="knopbalk">
               <button class="actie" id="btn-opslaan-doel">Ontwikkeldoel toevoegen</button>
@@ -1948,7 +2149,8 @@
     bij("btn-opslaan-doel", "click", () => {
       voegOntwikkeldoelToe(teamGekozenMedewerker, {
         titel: waarde("nieuw-doel-titel"), g: waarde("nieuw-doel-g"), r: waarde("nieuw-doel-r"),
-        o: waarde("nieuw-doel-o"), w: waarde("nieuw-doel-w"), streefdatum: waarde("nieuw-doel-streefdatum"),
+        o: waarde("nieuw-doel-o"), w: waarde("nieuw-doel-w"), competentiegebied: waarde("nieuw-doel-competentiegebied"),
+        streefdatum: waarde("nieuw-doel-streefdatum"),
       });
       teamToonNieuwDoel = false;
     });
@@ -2051,11 +2253,25 @@
 
   function koppelDashboardEvents() {
     const bij = (id, event, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(event, fn); };
+    const waarde = (id) => { const el = document.getElementById(id); return el ? el.value : ""; };
 
     bij("dash-f-locatie", "change", (e) => { dashboardFilterLocatie = e.target.value; render(); });
     document.querySelectorAll("[data-dash-afronden-taak]").forEach((b) => b.addEventListener("click", () => markeerAfgerond(b.dataset.dashAfrondenTaak)));
     document.querySelectorAll("[data-dash-afronden-actie]").forEach((b) => b.addEventListener("click", () => wijzigActie(b.dataset.dashAfrondenActie, "status", "afgerond")));
     document.querySelectorAll("[data-dash-naar-medewerker]").forEach((b) => b.addEventListener("click", () => gaNaarMedewerkerProfiel(b.dataset.dashNaarMedewerker)));
+
+    document.querySelectorAll("[data-wijziging]").forEach((el) => el.addEventListener("change", () => wijzigWijziging(el.dataset.wijziging, el.dataset.veld, el.value)));
+    document.querySelectorAll("[data-verwijder-wijziging]").forEach((b) => b.addEventListener("click", () => verwijderWijziging(b.dataset.verwijderWijziging)));
+    bij("btn-nieuwe-wijziging", "click", () => { toonNieuweWijziging = true; render(); });
+    bij("btn-annuleer-wijziging", "click", () => { toonNieuweWijziging = false; render(); });
+    bij("btn-opslaan-wijziging", "click", () => {
+      voegWijzigingToe({
+        titel: waarde("nieuw-wijziging-titel"), locatieId: waarde("nieuw-wijziging-locatie"),
+        datum: waarde("nieuw-wijziging-datum"), status: waarde("nieuw-wijziging-status"),
+        omschrijving: waarde("nieuw-wijziging-omschrijving"),
+      });
+      toonNieuweWijziging = false;
+    });
   }
 
   render();
