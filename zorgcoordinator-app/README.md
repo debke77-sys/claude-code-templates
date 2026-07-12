@@ -71,6 +71,29 @@ alleen toestaan als de pagina via een (lokaal) adres wordt geopend, niet vanaf e
 Belangrijk: de map met bestanden (`index.html`, `manifest.json`, `sw.js`, `icons/`,
 `start-windows.bat`, `start-mac.command`) moet bij elkaar in dezelfde map blijven staan.
 
+## Ook op je iPhone gebruiken
+
+Je kunt de app ook op je iPhone zetten, als **losse kopie met eigen gegevens**. Dit is dus geen
+synchronisatie met je computer — het is een tweede, zelfstandig exemplaar van de app. Zie
+verderop ("Waar blijven mijn gegevens?") hoe je een back-up van de ene kant op de andere kant
+terugzet, als je ze af en toe wilt samenvoegen.
+
+1. Zet het `index.html`-bestand op je iPhone. Bijvoorbeeld:
+   - **AirDrop** vanaf een Mac: rechtsklik op `index.html` → Deel → AirDrop.
+   - Of **mail 'm naar jezelf** en open de bijlage op je iPhone.
+   - Sla 'm op in de **Bestanden-app** (kies "Bewaar in Bestanden" / "Save to Files") — je hebt
+     alleen dit ene bestand nodig, niet de rest van de map.
+2. Open het bestand in de **Bestanden-app** op je iPhone. Tik erop; het opent in Safari.
+3. Tik op het deel-icoon (vierkantje met pijl omhoog) onderaan Safari → **"Zet op beginscherm"**
+   ("Add to Home Screen").
+4. Je hebt nu een Zorgplanner-icoon op je beginscherm dat de app opent zonder Safari's
+   adresbalk, met de fictieve voorbeelddata om mee te beginnen — vervang die via Instellingen
+   net als op je computer.
+
+**Let op:** iOS ruimt soms opgeslagen gegevens van een tijdje niet-gebruikte website op. Open de
+app op je iPhone daarom regelmatig, en maak net als op je computer af en toe een back-up
+(**Jaarplanning → Instellingen → Back-up**) zodat je nooit iets kwijtraakt.
+
 ## Waar blijven mijn gegevens?
 
 Alle gegevens worden lokaal opgeslagen in de browser waarin je de app opent (via
