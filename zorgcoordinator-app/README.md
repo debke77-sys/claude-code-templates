@@ -5,7 +5,8 @@ Excel-bestanden voor teamoverzicht, jaarplanning, actielijst en een startdashboa
 
 **Status:** alle vier oorspronkelijke onderdelen klaar — **Dashboard**, **Jaarplanning**, **Team**
 en **Actielijst** — plus uitbreidingen: een **Bewoners**-tabblad, een back-up-herinnering,
-competentiegebieden bij ontwikkeldoelen, een wijzigingenlog en een kwaliteitsoverzicht.
+competentiegebieden bij ontwikkeldoelen, een wijzigingenlog, een kwaliteitsoverzicht, een eigen
+visueel ontwerp ("Binnentuin") en installeerbaarheid als app.
 
 ## Visueel ontwerp: "Binnentuin"
 
@@ -21,8 +22,40 @@ navigatie — zo springt precies de actie die aandacht vraagt eruit.
 
 ## Hoe open ik de app?
 
-Geen installatie nodig. Dubbelklik op `index.html` (of open het bestand via je browser:
-`Bestand > Openen`). De app werkt volledig in je browser, in Chrome, Edge of Firefox.
+Er zijn twee manieren, van eenvoudig naar volledig:
+
+### Optie 1 — snel, geen installatie
+
+Dubbelklik op `index.html` (of open het bestand via je browser: `Bestand > Openen`). Werkt
+direct, in Chrome, Edge of Firefox. Je mist dan wel de "app installeren"-knop en het gebruik
+zonder internetverbinding (zie hieronder) — voor het dagelijkse gebruik maakt dat verder niets uit.
+
+### Optie 2 — als geïnstalleerde app (aanbevolen)
+
+Hiermee krijg je een echt app-icoon op je bureaublad/startmenu, een eigen venster zonder
+browserbalk, én werkt de app ook zonder internetverbinding. Dit vereist één klein extra stapje
+omdat browsers dit alleen toestaan als de pagina via een (lokaal) adres wordt geopend, niet
+vanaf een los bestand.
+
+1. Dubbelklik op **`start-windows.bat`** (Windows) of **`start-mac.command`** (Mac).
+   - Dit start een klein lokaal servertje op je eigen computer (met Python, dat op de meeste
+     computers al geïnstalleerd is) en opent de app automatisch in je browser op
+     `http://localhost:8420`. Er gaat niets naar internet — dit blijft net zo lokaal als
+     voorheen, het adres is alleen bereikbaar vanaf je eigen computer.
+   - Geen Python gevonden? Installeer het gratis via
+     [python.org/downloads](https://www.python.org/downloads/) (Windows: vink bij installatie
+     "Add to PATH" aan) en probeer het daarna opnieuw.
+   - Laat het venstertje dat opent openstaan zolang je de app gebruikt — dat is het servertje.
+     Sluit je dat venster, dan stopt de app met werken totdat je het script opnieuw start.
+2. Zodra de app op `http://localhost:8420` open staat, zie je rechtsboven een knop
+   **"📲 App installeren"** verschijnen (soms moet je de pagina een keer verversen). Klik
+   daarop, of gebruik het installatie-icoontje in de adresbalk van Chrome/Edge.
+3. Na installatie vind je de Zorgplanner terug als een gewone app op je bureaublad/startmenu,
+   met het eigen icoon — en werkt hij ook zonder internet, omdat alle onderdelen dan al in je
+   browser zijn opgeslagen (via een "service worker").
+
+Belangrijk: de map met bestanden (`index.html`, `manifest.json`, `sw.js`, `icons/`,
+`start-windows.bat`, `start-mac.command`) moet bij elkaar in dezelfde map blijven staan.
 
 ## Waar blijven mijn gegevens?
 
