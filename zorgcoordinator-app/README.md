@@ -7,6 +7,18 @@ Excel-bestanden voor teamoverzicht, jaarplanning, actielijst en een startdashboa
 en **Actielijst** — plus uitbreidingen: een **Bewoners**-tabblad, een back-up-herinnering,
 competentiegebieden bij ontwikkeldoelen, een wijzigingenlog en een kwaliteitsoverzicht.
 
+## Visueel ontwerp: "Binnentuin"
+
+De app heeft een eigen visuele stijl gekregen, genoemd naar de sfeer van je locatienamen
+(De Lindenhof, Zonnehoeve, Beukenpark, Meidoornhuis): mosgroen en een bosbesrode accentkleur
+op een warme, papierachtige ondergrond, met "National Park" voor koppen en "Work Sans" voor
+lopende tekst. Beide lettertypen zijn in het bestand ingebakken (als data, geen internet nodig)
+zodat de app er overal hetzelfde uitziet.
+
+De accentkleur (bosbesrood) is bewust alleen gereserveerd voor de belangrijkste
+actieknoppen ("Markeer als afgerond", "Toevoegen"), los van de merkkleur (mosgroen) in de
+navigatie — zo springt precies de actie die aandacht vraagt eruit.
+
 ## Hoe open ik de app?
 
 Geen installatie nodig. Dubbelklik op `index.html` (of open het bestand via je browser:
