@@ -22,20 +22,34 @@ navigatie — zo springt precies de actie die aandacht vraagt eruit.
 
 ## Hoe open ik de app?
 
-Er zijn twee manieren, van eenvoudig naar volledig:
+Er zijn drie manieren, van eenvoudig naar volledig. Kies wat het beste bij je past — je kunt
+ook gewoon met optie 1 beginnen en later overstappen.
 
 ### Optie 1 — snel, geen installatie
 
 Dubbelklik op `index.html` (of open het bestand via je browser: `Bestand > Openen`). Werkt
-direct, in Chrome, Edge of Firefox. Je mist dan wel de "app installeren"-knop en het gebruik
+direct, in Chrome, Edge of Firefox. Je mist dan wel een eigen app-venster en het gebruik
 zonder internetverbinding (zie hieronder) — voor het dagelijkse gebruik maakt dat verder niets uit.
 
-### Optie 2 — als geïnstalleerde app (aanbevolen)
+### Optie 2 — app-snelkoppeling, zonder servertje
 
-Hiermee krijg je een echt app-icoon op je bureaublad/startmenu, een eigen venster zonder
-browserbalk, én werkt de app ook zonder internetverbinding. Dit vereist één klein extra stapje
-omdat browsers dit alleen toestaan als de pagina via een (lokaal) adres wordt geopend, niet
-vanaf een los bestand.
+Een eigen icoon op je bureaublad/startmenu en een venster zonder browserbalk, zonder dat je
+er iets extra's voor hoeft te installeren of te starten. Nadeel: werkt niet zonder
+internetverbinding (dat vereist optie 3) en er verschijnt geen automatische
+"installeren"-knop — je maakt de snelkoppeling zelf, eenmalig, via het browsermenu:
+
+1. Open `index.html` gewoon zoals in optie 1 (dubbelklikken).
+2. Klik in Chrome of Edge op het menu (⋮ rechtsboven) → **Extra hulpprogramma's** /
+   **Meer downloaden** → **Snelkoppeling maken...** (Engels: *More tools* → *Create shortcut...*).
+3. Vink **"Openen in een venster"** / **"Open as window"** aan en klik op **Maken/Create**.
+4. Je hebt nu een Zorgplanner-icoon op je bureaublad (of vastgezet in het startmenu/taakbalk)
+   dat de app in zijn eigen venster opent, met het Binnentuin-icoon.
+
+### Optie 3 — volledig geïnstalleerd, ook offline (aanbevolen als je vaak zonder wifi werkt)
+
+Hetzelfde als optie 2, plus: werkt ook zonder internetverbinding, omdat de app dan volledig in
+je browser wordt opgeslagen. Dit vereist één klein extra stapje omdat browsers offline-opslag
+alleen toestaan als de pagina via een (lokaal) adres wordt geopend, niet vanaf een los bestand.
 
 1. Dubbelklik op **`start-windows.bat`** (Windows) of **`start-mac.command`** (Mac).
    - Dit start een klein lokaal servertje op je eigen computer (met Python, dat op de meeste
