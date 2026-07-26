@@ -796,6 +796,122 @@ class ChatsMobile {
       }
     });
 
+    // API to delete a single conversation
+    this.app.delete('/api/conversations/:id', async (req, res) => {
+      try {
+        const conversationId = req.params.id;
+        const conversation = this.data.conversations.find(conv => conv.id === conversationId);
+
+        if (!conversation) {
+          return res.status(404).json({ error: 'Conversation not found' });
+        }
+
+        await this.conversationAnalyzer.deleteConversation(conversation.filePath);
+        this.removeConversationFromMemory(conversationId);
+
+        console.log(chalk.yellow(`🗑️  Deleted conversation ${conversationId.slice(-8)}`));
+
+        res.json({
+          success: true,
+          conversationId: conversationId,
+          remaining: this.data.conversations.length
+        });
+      } catch (error) {
+        console.error('Error deleting conversation:', error);
+        res.status(500).json({ error: 'Failed to delete conversation', message: error.message });
+      }
+    });
+
+    // API to delete multiple conversations at once
+    this.app.post('/api/conversations/bulk-delete', async (req, res) => {
+      try {
+        const { ids } = req.body;
+
+        if (!Array.isArray(ids) || ids.length === 0) {
+          return res.status(400).json({ error: 'ids must be a non-empty array' });
+        }
+
+        const deleted = [];
+        const failed = [];
+
+        for (const conversationId of ids) {
+          const conversation = this.data.conversations.find(conv => conv.id === conversationId);
+          if (!conversation) {
+            failed.push({ id: conversationId, reason: 'not found' });
+            continue;
+          }
+
+          try {
+            await this.conversationAnalyzer.deleteConversation(conversation.filePath);
+            this.removeConversationFromMemory(conversationId);
+            deleted.push(conversationId);
+          } catch (error) {
+            failed.push({ id: conversationId, reason: error.message });
+          }
+        }
+
+        console.log(chalk.yellow(`🗑️  Bulk deleted ${deleted.length} conversation(s)`));
+
+        res.json({
+          success: true,
+          deleted,
+          failed,
+          remaining: this.data.conversations.length
+        });
+      } catch (error) {
+        console.error('Error bulk deleting conversations:', error);
+        res.status(500).json({ error: 'Failed to bulk delete conversations', message: error.message });
+      }
+    });
+
+    // API to find/delete conversations by cleanup criteria (empty chats, older than N days)
+    this.app.post('/api/conversations/cleanup', async (req, res) => {
+      try {
+        const { emptyOnly, olderThanDays, dryRun } = req.body;
+        const matches = this.findConversationsForCleanup({ emptyOnly, olderThanDays });
+
+        if (dryRun) {
+          return res.json({
+            success: true,
+            dryRun: true,
+            count: matches.length,
+            conversations: matches.map(conv => ({
+              id: conv.id,
+              project: conv.project,
+              messageCount: conv.messageCount,
+              lastModified: conv.lastModified
+            }))
+          });
+        }
+
+        const deleted = [];
+        const failed = [];
+
+        for (const conversation of matches) {
+          try {
+            await this.conversationAnalyzer.deleteConversation(conversation.filePath);
+            this.removeConversationFromMemory(conversation.id);
+            deleted.push(conversation.id);
+          } catch (error) {
+            failed.push({ id: conversation.id, reason: error.message });
+          }
+        }
+
+        console.log(chalk.yellow(`🧹 Cleanup deleted ${deleted.length} conversation(s)`));
+
+        res.json({
+          success: true,
+          dryRun: false,
+          deleted,
+          failed,
+          remaining: this.data.conversations.length
+        });
+      } catch (error) {
+        console.error('Error cleaning up conversations:', error);
+        res.status(500).json({ error: 'Failed to clean up conversations', message: error.message });
+      }
+    });
+
     // Serve the mobile chats page as default
     this.app.get('/', (req, res) => {
       res.sendFile(path.join(__dirname, 'analytics-web', 'chats_mobile.html'));
@@ -996,6 +1112,28 @@ class ChatsMobile {
     if (end < text.length) preview = preview + '...';
 
     return preview;
+  }
+
+  /**
+   * Remove a conversation from all in-memory tracking structures after deletion
+   * @param {string} conversationId - Conversation id to remove
+   */
+  removeConversationFromMemory(conversationId) {
+    this.data.conversations = this.data.conversations.filter(conv => conv.id !== conversationId);
+    delete this.data.conversationStates[conversationId];
+    this.conversationMessageCounts.delete(conversationId);
+    this.conversationMessageSnapshots.delete(conversationId);
+  }
+
+  /**
+   * Find conversations matching cleanup criteria
+   * @param {Object} criteria
+   * @param {boolean} criteria.emptyOnly - Match conversations with 0 or 1 messages
+   * @param {number} criteria.olderThanDays - Match conversations last modified more than N days ago
+   * @returns {Array} Matching conversations
+   */
+  findConversationsForCleanup({ emptyOnly, olderThanDays } = {}) {
+    return filterConversationsForCleanup(this.data.conversations, { emptyOnly, olderThanDays });
   }
 
   /**
@@ -1228,6 +1366,171 @@ class ChatsMobile {
 }
 
 /**
+ * Filter conversations matching cleanup criteria (empty and/or older than N days)
+ * @param {Array} conversations - Conversation objects (must include messageCount, lastModified)
+ * @param {Object} criteria
+ * @param {boolean} criteria.emptyOnly - Match conversations with 0 or 1 messages
+ * @param {number} criteria.olderThanDays - Match conversations last modified more than N days ago
+ * @returns {Array} Matching conversations
+ */
+function filterConversationsForCleanup(conversations, { emptyOnly, olderThanDays } = {}) {
+  const hasEmptyFilter = !!emptyOnly;
+  const hasAgeFilter = typeof olderThanDays === 'number' && !Number.isNaN(olderThanDays) && olderThanDays >= 0;
+
+  if (!hasEmptyFilter && !hasAgeFilter) {
+    return [];
+  }
+
+  const cutoffTime = hasAgeFilter ? Date.now() - olderThanDays * 24 * 60 * 60 * 1000 : null;
+
+  return conversations.filter(conv => {
+    const matchesEmpty = hasEmptyFilter && (conv.messageCount || 0) <= 1;
+    const matchesAge = hasAgeFilter && new Date(conv.lastModified).getTime() < cutoffTime;
+
+    return matchesEmpty || matchesAge;
+  });
+}
+
+/**
+ * CLI entry point to clean up (delete) local Claude Code conversations.
+ * Supports deleting empty conversations, conversations older than N days,
+ * or interactively picking individual conversations to delete.
+ * @param {Object} options - CLI options (emptyOnly, olderThan, yes, dryRun, verbose)
+ */
+async function cleanChats(options = {}) {
+  const homeDir = os.homedir();
+  const claudeDir = path.join(homeDir, '.claude');
+
+  if (!(await fs.pathExists(claudeDir))) {
+    console.log(chalk.yellow('⚠️  No Claude Code data directory found'));
+    return;
+  }
+
+  console.log(chalk.blue('📂 Loading conversations...'));
+
+  const dataCache = new DataCache();
+  try {
+    await cleanChatsWithCache(options, claudeDir, dataCache);
+  } finally {
+    dataCache.cleanup();
+  }
+}
+
+async function cleanChatsWithCache(options, claudeDir, dataCache) {
+  const inquirer = require('inquirer');
+  const conversationAnalyzer = new ConversationAnalyzer(claudeDir, dataCache);
+  const stateCalculator = new StateCalculator();
+  const conversations = await conversationAnalyzer.loadConversations(stateCalculator);
+
+  if (conversations.length === 0) {
+    console.log(chalk.gray('No conversations found.'));
+    return;
+  }
+
+  let emptyOnly = !!options.emptyOnly;
+  let olderThanDays = options.olderThan !== undefined ? parseInt(options.olderThan, 10) : undefined;
+  let manualSelection = null;
+
+  const hasExplicitCriteria = emptyOnly || (typeof olderThanDays === 'number' && !Number.isNaN(olderThanDays));
+
+  if (!hasExplicitCriteria) {
+    // No criteria passed via flags - ask interactively
+    const { criteria } = await inquirer.prompt([{
+      type: 'checkbox',
+      name: 'criteria',
+      message: `Found ${conversations.length} conversations. What do you want to clean up?`,
+      choices: [
+        { name: 'Empty conversations (0-1 messages)', value: 'empty' },
+        { name: 'Conversations older than N days', value: 'age' },
+        { name: 'Pick conversations manually', value: 'manual' }
+      ]
+    }]);
+
+    if (criteria.length === 0) {
+      console.log(chalk.gray('Nothing selected. Aborting.'));
+      return;
+    }
+
+    emptyOnly = criteria.includes('empty');
+
+    if (criteria.includes('age')) {
+      const { days } = await inquirer.prompt([{
+        type: 'number',
+        name: 'days',
+        message: 'Delete conversations older than how many days?',
+        default: 30,
+        validate: value => (Number.isFinite(value) && value >= 0) || 'Enter a non-negative number'
+      }]);
+      olderThanDays = days;
+    }
+
+    if (criteria.includes('manual')) {
+      const sorted = [...conversations].sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+      const { selectedIds } = await inquirer.prompt([{
+        type: 'checkbox',
+        name: 'selectedIds',
+        message: 'Select conversations to delete',
+        pageSize: 15,
+        choices: sorted.map(conv => ({
+          name: `${conv.project || 'Unknown'} — ${conv.id.slice(-8)} (${conv.messageCount || 0} msgs, ${new Date(conv.lastModified).toLocaleDateString()})`,
+          value: conv.id
+        }))
+      }]);
+      manualSelection = selectedIds;
+    }
+  }
+
+  let matches = filterConversationsForCleanup(conversations, { emptyOnly, olderThanDays });
+
+  if (manualSelection) {
+    const manualMatches = conversations.filter(conv => manualSelection.includes(conv.id));
+    const combined = new Map([...matches, ...manualMatches].map(conv => [conv.id, conv]));
+    matches = Array.from(combined.values());
+  }
+
+  if (matches.length === 0) {
+    console.log(chalk.gray('No conversations match the cleanup criteria.'));
+    return;
+  }
+
+  console.log(chalk.cyan(`\n🧹 ${matches.length} conversation(s) will be deleted:`));
+  matches.forEach(conv => {
+    console.log(chalk.gray(`  - ${conv.project || 'Unknown'} — ${conv.id.slice(-8)} (${conv.messageCount || 0} msgs, last modified ${new Date(conv.lastModified).toLocaleString()})`));
+  });
+
+  if (options.dryRun) {
+    console.log(chalk.yellow('\n🔍 Dry run — no files were deleted.'));
+    return;
+  }
+
+  if (!options.yes) {
+    const { confirmed } = await inquirer.prompt([{
+      type: 'confirm',
+      name: 'confirmed',
+      message: `Delete these ${matches.length} conversation(s)? This cannot be undone.`,
+      default: false
+    }]);
+
+    if (!confirmed) {
+      console.log(chalk.gray('Cancelled. No files were deleted.'));
+      return;
+    }
+  }
+
+  let deletedCount = 0;
+  for (const conv of matches) {
+    try {
+      await conversationAnalyzer.deleteConversation(conv.filePath);
+      deletedCount++;
+    } catch (error) {
+      console.error(chalk.red(`❌ Failed to delete ${conv.id.slice(-8)}: ${error.message}`));
+    }
+  }
+
+  console.log(chalk.green(`\n✅ Deleted ${deletedCount} of ${matches.length} conversation(s).`));
+}
+
+/**
  * Start the mobile chats server
  */
 async function startChatsMobile(options = {}) {
@@ -1288,4 +1591,4 @@ async function startChatsMobile(options = {}) {
   }
 }
 
-module.exports = { ChatsMobile, startChatsMobile };
+module.exports = { ChatsMobile, startChatsMobile, cleanChats, filterConversationsForCleanup };

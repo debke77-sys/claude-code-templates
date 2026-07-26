@@ -13,7 +13,7 @@ const { runCommandStats } = require('./command-stats');
 const { runHookStats } = require('./hook-stats');
 const { runMCPStats } = require('./mcp-stats');
 const { runAnalytics } = require('./analytics');
-const { startChatsMobile } = require('./chats-mobile');
+const { startChatsMobile, cleanChats } = require('./chats-mobile');
 const { runHealthCheck } = require('./health-check');
 const { runPluginDashboard } = require('./plugin-dashboard');
 const { runSkillDashboard } = require('./skill-dashboard');
@@ -273,6 +273,22 @@ async function createClaudeConfig(options = {}) {
     trackingService.trackCommandExecution('teams');
     trackingService.trackAnalyticsDashboard({ page: 'teams', source: 'command_line' });
     await runTeamsDashboard(options);
+    return;
+  }
+
+  // Handle chats cleanup (delete empty/old/manually selected local conversations)
+  if (options.cleanChats) {
+    trackingService.trackCommandExecution('clean-chats', {
+      emptyChats: options.emptyChats || false,
+      olderThan: options.olderThan || null,
+      dryRun: options.dryRun || false
+    });
+    await cleanChats({
+      emptyOnly: options.emptyChats,
+      olderThan: options.olderThan,
+      dryRun: options.dryRun,
+      yes: options.yes
+    });
     return;
   }
 

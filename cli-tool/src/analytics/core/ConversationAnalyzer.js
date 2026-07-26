@@ -150,6 +150,32 @@ class ConversationAnalyzer {
   }
 
   /**
+   * Delete a conversation file from disk
+   * @param {string} filePath - Full path to the .jsonl conversation file
+   * @returns {Promise<boolean>} True if the file was deleted
+   */
+  async deleteConversation(filePath) {
+    const resolvedPath = path.resolve(filePath);
+    const resolvedClaudeDir = path.resolve(this.claudeDir);
+
+    if (!resolvedPath.startsWith(resolvedClaudeDir + path.sep) || !resolvedPath.endsWith('.jsonl')) {
+      throw new Error(`Refusing to delete file outside Claude data directory: ${filePath}`);
+    }
+
+    if (!(await fs.pathExists(resolvedPath))) {
+      return false;
+    }
+
+    await fs.remove(resolvedPath);
+
+    if (this.dataCache) {
+      this.dataCache.invalidateFile(resolvedPath);
+    }
+
+    return true;
+  }
+
+  /**
    * Load active Claude projects from directory structure
    * @returns {Promise<Array>} Array of project objects
    */
