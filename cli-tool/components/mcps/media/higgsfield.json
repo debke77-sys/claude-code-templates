@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "higgsfield": {
+      "description": "Official hosted MCP server for Higgsfield AI. Generate images and videos (up to 4K, clips up to 15s) across 30+ models including Kling, Veo, Sora, Seedance and Soul, directly from chat. Authenticates via your Higgsfield account (OAuth) — no API key required.",
+      "type": "http",
+      "url": "https://mcp.higgsfield.ai/mcp"
+    }
+  }
+}
